@@ -1,5 +1,9 @@
 package backend.model;
 
-public interface Figure {
+import javafx.scene.canvas.GraphicsContext;
 
+public interface Figure {
+    void draw(GraphicsContext gc);
+
+    void drawBeveled(GraphicsContext gc);
 }
