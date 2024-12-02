@@ -2,7 +2,7 @@ package backend.model;
 
 import javafx.scene.canvas.GraphicsContext;
 
-public class Ellipse implements Figure {
+public class Ellipse extends Figure {
 
     protected final Point centerPoint;
     protected final double sMayorAxis, sMinorAxis;

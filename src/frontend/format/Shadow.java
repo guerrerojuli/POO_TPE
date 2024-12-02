@@ -27,7 +27,7 @@ public enum Shadow {
     public void drawShadow(GraphicsContext gc, Drawable figure, Color figureColor) {
         gc.setFill( this.isColored ? figureColor.darker(): DEFAULT_COLOR);
         figure.move(this.offset, this.offset);
-        figure.drawShape(gc);
+        figure.drawShape();
         figure.move(-this.offset, -this.offset);
     }
 

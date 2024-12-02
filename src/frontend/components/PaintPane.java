@@ -2,6 +2,7 @@ package frontend.components;
 
 import backend.CanvasState;
 import backend.model.*;
+import frontend.format.Format;
 import frontend.format.Shadow;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;

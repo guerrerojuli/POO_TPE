@@ -1,5 +1,5 @@
 package backend.model;
 
-public interface Figure extends Movable {
+public abstract class Figure implements Movable {
 
 }
