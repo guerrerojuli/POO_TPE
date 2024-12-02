@@ -27,12 +27,12 @@ public class DrawableRectangle extends Rectangle implements Drawable {
     }
 
     @Override
-    public void setFeatures(Format features){
+    public void setFormat(Format format){
 
     }
 
     @Override
-    public Format getFeatures(){
+    public Format getFormat(){
 
     }
 }

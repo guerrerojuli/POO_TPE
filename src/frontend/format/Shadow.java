@@ -6,7 +6,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public enum Shadow {
-    NOSHADE(0, false){
+    NONE(0, false){
         @Override
         public void drawShade(GraphicsContext gc, Drawable figure, Color color) {}
     },
