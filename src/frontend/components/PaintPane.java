@@ -4,9 +4,11 @@ import backend.CanvasState;
 import backend.model.*;
 import frontend.drawable.*;
 import frontend.format.Format;
+import frontend.format.Shadow;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
 
 public class PaintPane extends BorderPane {
 	// Dimensiones
@@ -16,7 +18,7 @@ public class PaintPane extends BorderPane {
 			VBOX_SPACING = 10;
 
 	// Barra lateral izquierda
-	LeftBar barraIzq = new LeftBar(VBOX_SPACING);
+	LeftBar leftBar = new LeftBar(VBOX_SPACING);
 
 	// BackEnd
 	CanvasState<DrawableFigure> canvasState;
@@ -30,6 +32,8 @@ public class PaintPane extends BorderPane {
 
 	// Seleccionar una figura
 	DrawableFigure selectedFigure;
+
+	Format copiedFormat = null;
 
 	// StatusBar
 	StatusPane statusPane;
@@ -56,10 +60,10 @@ public class PaintPane extends BorderPane {
 			}
 
 			Format newFormat =  new Format(
-						barraIzq.getChoiceShadow().getValue(),
-						barraIzq.getFirstFillColorPicker().getValue(),
-						barraIzq.getSecondFillColorPicker().getValue(),
-						barraIzq.getBeveledBox().isSelected()
+						leftBar.getChoiceShadow().getValue(),
+						leftBar.getFirstFillColorPicker().getValue(),
+						leftBar.getSecondFillColorPicker().getValue(),
+						leftBar.getBeveledBox().isSelected()
 					);
 
 			// Crear la nueva figura según el botón seleccionado
@@ -89,17 +93,11 @@ public class PaintPane extends BorderPane {
 		});
 
 		canvas.setOnMouseClicked(event -> {
-			if (!barraIzq.getSelectionButton().isSelected()) {
+			if (!leftBar.getSelectionButton().isSelected()) {
 				return;
 			}
 
 			Point eventPoint = new Point(event.getX(), event.getY());
-
-			Format copiedFormat = null;
-			if (barraIzq.getCopyFmt().isSelected() && selectedFigure != null) {
-				copiedFormat = selectedFigure.getFormat();
-				barraIzq.getCopyFmt().setSelected(false);
-			}
 
 			// Busca la primer figura que contenga al punto
 			selectedFigure = canvasState.stream()
@@ -108,20 +106,24 @@ public class PaintPane extends BorderPane {
 					.orElse(null);
 
 			// Actualiza el status pane basado en la selección
-			if (selectedFigure != null && copiedFormat != null) {
-				selectedFigure.setFormat(copiedFormat);
-			}
+			String status = "Ninguna figura encontrada";
+			if (selectedFigure != null) {
+				status = "Se selecionó: " + selectedFigure.toString();
 
-			String status = (selectedFigure != null)
-					? "Se seleccionó: " + selectedFigure
-					: "Ninguna figura encontrada";
+				if (copiedFormat != null) {
+					selectedFigure.setFormat(copiedFormat);
+					copiedFormat = null;
+				}
+
+				leftBar.updateFormat(selectedFigure.getFormat());
+			}
 
 			statusPane.updateStatus(status);
 			redrawCanvas();
 		});
 
 		canvas.setOnMouseDragged(event -> {
-			if(!barraIzq.getSelectionButton().isSelected() || selectedFigure == null) {
+			if(!leftBar.getSelectionButton().isSelected() || selectedFigure == null) {
 				return;
 			}
 			Point eventPoint = new Point(event.getX(), event.getY());
@@ -131,7 +133,7 @@ public class PaintPane extends BorderPane {
 			redrawCanvas();
 		});
 
-		barraIzq.getDeleteButton().setOnAction(event -> {
+		leftBar.getDeleteButton().setOnAction(event -> {
 			if (selectedFigure == null) {
 				return;
 			}
@@ -140,7 +142,56 @@ public class PaintPane extends BorderPane {
 			redrawCanvas();
 		});
 
-		setLeft(barraIzq);
+		leftBar.getChoiceShadow()
+				.getSelectionModel()
+				.selectedItemProperty()
+				.addListener((observable, oldValue, newValue) -> {
+					leftBar.getFormat().setShadow(newValue);
+					if (selectedFigure != null) {
+						selectedFigure.setFormat(leftBar.getFormat());
+					}
+					redrawCanvas();
+				});
+
+		leftBar.getBeveledBox()
+				.selectedProperty()
+				.addListener((observable, oldValue, newValue) -> {
+					leftBar.getFormat().setBeveled(newValue);
+					if (selectedFigure != null) {
+						selectedFigure.setFormat(leftBar.getFormat());
+					}
+					redrawCanvas();
+				});
+
+		leftBar.getFirstFillColorPicker()
+				.valueProperty()
+				.addListener((observable, oldValue, newValue) -> {
+					leftBar.getFormat().setFirstFillColor(newValue);
+					if (selectedFigure != null) {
+						selectedFigure.setFormat(leftBar.getFormat());
+					}
+					redrawCanvas();
+				});
+
+		leftBar.getSecondFillColorPicker()
+				.valueProperty()
+				.addListener((observable, oldValue, newValue) -> {
+					leftBar.getFormat().setSecondFillColor(newValue);
+					if (selectedFigure != null) {
+						selectedFigure.setFormat(leftBar.getFormat());
+					}
+					redrawCanvas();
+				});
+
+
+		leftBar.getCopyFmt().setOnAction(event -> {
+			if (selectedFigure == null) {
+				return;
+			}
+			copiedFormat = selectedFigure.getFormat();
+		});
+
+		setLeft(leftBar);
 		setCenter(canvas);
 	}
 
@@ -153,15 +204,15 @@ public class PaintPane extends BorderPane {
 	}
 
 	private DrawableFigure createFigure(Point startPoint, Point endPoint, Format format) {
-		if (barraIzq.getRectangleButton().isSelected()) {
+		if (leftBar.getRectangleButton().isSelected()) {
 			return new DrawableRectangle(startPoint, endPoint, format);
-		} else if (barraIzq.getCircleButton().isSelected()) {
+		} else if (leftBar.getCircleButton().isSelected()) {
 			double circleRadius = Math.abs(endPoint.getX() - startPoint.getX());
 			return new DrawableCircle(startPoint, circleRadius, format);
-		} else if (barraIzq.getSquareButton().isSelected()) {
+		} else if (leftBar.getSquareButton().isSelected()) {
 			double size = Math.abs(endPoint.getX() - startPoint.getX());
 			return new DrawableSquare(startPoint, size, format);
-		} else if (barraIzq.getEllipseButton().isSelected()) {
+		} else if (leftBar.getEllipseButton().isSelected()) {
 			Point centerPoint = new Point(
 					(startPoint.getX() + endPoint.getX()) / 2,
 					(startPoint.getY() + endPoint.getY()) / 2

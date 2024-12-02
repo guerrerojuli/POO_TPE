@@ -1,5 +1,6 @@
 package frontend.components;
 
+import frontend.format.Format;
 import frontend.format.Shadow;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -17,18 +18,18 @@ public class LeftBar extends VBox {
     private final String VBOX_STYLE = "-fx-background-color: #999";
 
     // Botones Barra Izquierda
-    ToggleButton selectionButton = new ToggleButton("Seleccionar");
-    ToggleButton rectangleButton = new ToggleButton("Rectángulo");
-    ToggleButton circleButton = new ToggleButton("Círculo");
-    ToggleButton squareButton = new ToggleButton("Cuadrado");
-    ToggleButton ellipseButton = new ToggleButton("Elipse");
-    ToggleButton deleteButton = new ToggleButton("Borrar");
+    private ToggleButton selectionButton = new ToggleButton("Seleccionar");
+    private ToggleButton rectangleButton = new ToggleButton("Rectángulo");
+    private ToggleButton circleButton = new ToggleButton("Círculo");
+    private ToggleButton squareButton = new ToggleButton("Cuadrado");
+    private ToggleButton ellipseButton = new ToggleButton("Elipse");
+    private ToggleButton deleteButton = new ToggleButton("Borrar");
 
     // Titulo
-    Label formatLabel = new Label("Formato");
+    private Label formatLabel = new Label("Formato");
 
     // Sombras
-    ChoiceBox<Shadow> choiceShadow = new ChoiceBox<>(
+    private ChoiceBox<Shadow> choiceShadow = new ChoiceBox<>(
             FXCollections.observableArrayList(
                     Shadow.NONE,
                     Shadow.SIMPLE,
@@ -39,20 +40,22 @@ public class LeftBar extends VBox {
     );
 
     // Biselado
-    CheckBox beveledBox = new CheckBox("Biselado");
+    private CheckBox beveledBox = new CheckBox("Biselado");
 
     // Copiar Formato
-    ToggleButton copyFmt = new ToggleButton("Copiar Fmt.");
+    private ToggleButton copyFmt = new ToggleButton("Copiar Fmt.");
 
-    // Selector de color de relleno
-    Color defaultFirstFillColor = Color.YELLOW;
-    Color defaultSecondFillColor = Color.RED;
+    // Fomato
+    private Format format = new Format(Shadow.NONE, Color.AQUA, Color.AZURE, false);
 
-    ColorPicker firstFillColorPicker = new ColorPicker(defaultFirstFillColor);
-    ColorPicker secondFillColorPicker = new ColorPicker(defaultSecondFillColor);
+    private ColorPicker firstFillColorPicker = new ColorPicker(format.getFirstFillColor());
+    private ColorPicker secondFillColorPicker = new ColorPicker(format.getSecondFillColor());
 
     public LeftBar(int spacing) {
         super(spacing);
+        choiceShadow.setValue(format.getShadow());
+        beveledBox.setSelected(format.hasBeveled());
+
         ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton};
         ToggleGroup tools = new ToggleGroup();
         for (ToggleButton tool : toolsArr) {
@@ -60,7 +63,6 @@ public class LeftBar extends VBox {
             tool.setToggleGroup(tools);
             tool.setCursor(Cursor.HAND);
         }
-        choiceShadow.setValue(Shadow.NONE);
         this.getChildren().addAll(toolsArr);
         this.getChildren().addAll(
                 formatLabel,
@@ -75,8 +77,15 @@ public class LeftBar extends VBox {
         this.setPrefWidth(VBOX_PREF_WIDTH);
     }
 
-    // Getters utilizados en PaintPane
+    public void updateFormat(Format format) {
+        this.format = format;
+        choiceShadow.setValue(format.getShadow());
+        beveledBox.setSelected(format.hasBeveled());
+        firstFillColorPicker.setValue(format.getFirstFillColor());
+        secondFillColorPicker.setValue(format.getSecondFillColor());
+    }
 
+    // Getters utilizados en PaintPane
     public ColorPicker getFirstFillColorPicker() {
         return firstFillColorPicker;
     }
@@ -119,5 +128,9 @@ public class LeftBar extends VBox {
 
     public ToggleButton getCopyFmt() {
         return copyFmt;
+    }
+
+    public Format getFormat() {
+        return format;
     }
 }
