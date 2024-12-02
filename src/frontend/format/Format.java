@@ -1,15 +1,17 @@
-package backend.model;
+package frontend.format;
 
 import javafx.scene.paint.Color;
 
 public class Format {
-    private Shadow shadow = null;
+    private Shadow shadow;
     private Color firstFillColor, secondFillColor;
-    private boolean withBeveled = false;
+    private boolean withBeveled;
 
     public Format(Shadow shadow, Color firstFillColor, Color secondFillColor, boolean withBeveled) {
         this.firstFillColor = firstFillColor;
         this.secondFillColor = secondFillColor;
+        this.shadow = shadow;
+        this.withBeveled = withBeveled;
     }
 
     public boolean hasBeveled() {

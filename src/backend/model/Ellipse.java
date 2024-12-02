@@ -1,5 +1,7 @@
 package backend.model;
 
+import javafx.scene.canvas.GraphicsContext;
+
 public class Ellipse implements Figure {
 
     protected final Point centerPoint;
@@ -27,5 +29,4 @@ public class Ellipse implements Figure {
     public double getsMinorAxis() {
         return sMinorAxis;
     }
-
 }

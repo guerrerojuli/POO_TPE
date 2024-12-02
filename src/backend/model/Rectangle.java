@@ -21,5 +21,4 @@ public class Rectangle implements Figure {
     public String toString() {
         return String.format("Rectángulo [ %s , %s ]", topLeft, bottomRight);
     }
-
 }
