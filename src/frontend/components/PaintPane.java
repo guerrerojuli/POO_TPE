@@ -18,6 +18,9 @@ public class PaintPane extends BorderPane {
 	// Barra lateral izquierda
 	LeftBar barraIzq = new LeftBar(VBOX_SPACING);
 
+	// Barra lateral derecha
+	RightBar barraDer = new RightBar(VBOX_SPACING);
+
 	// BackEnd
 	CanvasState<DrawableFigure> canvasState;
 
@@ -96,9 +99,26 @@ public class PaintPane extends BorderPane {
 			Point eventPoint = new Point(event.getX(), event.getY());
 
 			Format copiedFormat = null;
-			if (barraIzq.getCopyFmt().isSelected() && selectedFigure != null) {
-				copiedFormat = selectedFigure.getFormat();
-				barraIzq.getCopyFmt().setSelected(false);
+			if(selectedFigure != null) {
+				if (barraIzq.getCopyFmt().isSelected()) {
+					copiedFormat = selectedFigure.getFormat();
+					barraIzq.getCopyFmt().setSelected(false);
+				} else if (barraDer.getRotationButton().isSelected()) {
+					selectedFigure.rotate();
+					barraDer.getRotationButton().setSelected(false);
+				} else if (barraDer.getFlipHButton().isSelected()) {
+					/*selectedFigure.flipH();*/
+					barraDer.getFlipHButton().setSelected(false);
+				} else if (barraDer.getFlipVButton().isSelected()) {
+					/*selectedFigure.flipV();*/
+					barraDer.getFlipVButton().setSelected(false);
+				} else if (barraDer.getDuplicateButton().isSelected()) {
+					/*canvasState.add(selectedFigure.duplicate());*/
+					barraDer.getDuplicateButton().setSelected(false);
+				} else if (barraDer.getDivideButton().isSelected()) {
+					/*canvasState.addAll(selectedFigure.divide());*/
+					barraDer.getDivideButton().setSelected(false);
+				}
 			}
 
 			// Busca la primer figura que contenga al punto
@@ -142,6 +162,7 @@ public class PaintPane extends BorderPane {
 
 		setLeft(barraIzq);
 		setCenter(canvas);
+		setRight(barraDer);
 	}
 
 	void redrawCanvas() {
