@@ -38,6 +38,7 @@ public class PaintPane extends BorderPane {
 
 		gc.setLineWidth(LINE_WIDTH);
 		setupCanvasEvents(statusPane);
+		setupTopBarEvents();
 		setupLeftBarEvents();
 
 
