@@ -4,28 +4,19 @@ import backend.CanvasState;
 import backend.model.*;
 import frontend.drawable.*;
 import frontend.format.Format;
-import frontend.format.Shadow;
-import javafx.collections.FXCollections;
-import javafx.geometry.Insets;
-import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 public class PaintPane extends BorderPane {
 	// Dimensiones
 	private final int CANVAS_WIDTH = 800,
 			CANVAS_HEIGHT = 600,
-			TOOL_MIN_WIDTH = 90,
-			VBOX_SPACING = 10,
-			VBOX_PADDING = 5,
 			LINE_WIDTH = 1,
-			VBOX_PREF_WIDTH = 100;
+			VBOX_SPACING = 10;
 
-	private final String VBOX_STYLE = "-fx-background-color: #999";
+	// Barra lateral izquierda
+	LeftBar barraIzq = new LeftBar(VBOX_SPACING);
 
 	// BackEnd
 	CanvasState<DrawableFigure> canvasState;
@@ -33,43 +24,6 @@ public class PaintPane extends BorderPane {
 	// Canvas y relacionados
 	Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 	GraphicsContext gc = canvas.getGraphicsContext2D();
-	Color defaultFirstFillColor = Color.YELLOW;
-	Color defaultSecondFillColor = Color.RED;
-
-	// Botones Barra Izquierda
-	ToggleButton selectionButton = new ToggleButton("Seleccionar");
-	ToggleButton rectangleButton = new ToggleButton("Rectángulo");
-	ToggleButton circleButton = new ToggleButton("Círculo");
-	ToggleButton squareButton = new ToggleButton("Cuadrado");
-	ToggleButton ellipseButton = new ToggleButton("Elipse");
-	ToggleButton deleteButton = new ToggleButton("Borrar");
-
-
-	/* Formato */
-	// Etiqueta
-	Label formatLabel = new Label("Formato");
-
-	// Sombras
-	ChoiceBox<Shadow> choiceShadow = new ChoiceBox<>(
-			FXCollections.observableArrayList(
-					Shadow.NONE,
-					Shadow.SIMPLE,
-					Shadow.COLORED,
-					Shadow.SIMPLE_INVERSED,
-					Shadow.COLORED_INVERSED
-			)
-	);
-
-	// Biselado
-	CheckBox beveledBox = new CheckBox("Biselado");
-
-	// Selector de color de relleno
-	ColorPicker firstFillColorPicker = new ColorPicker(defaultFirstFillColor);
-	ColorPicker secondFillColorPicker = new ColorPicker(defaultSecondFillColor);
-
-	// Copiar Formato
-	ToggleButton copyFmt = new ToggleButton("Copiar Fmt.");
-
 
 	// Dibujar una figura
 	Point startPoint;
@@ -80,31 +34,10 @@ public class PaintPane extends BorderPane {
 	// StatusBar
 	StatusPane statusPane;
 
-
 	public PaintPane(CanvasState<DrawableFigure> canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
 		this.statusPane = statusPane;
-		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton};
-		ToggleGroup tools = new ToggleGroup();
-		for (ToggleButton tool : toolsArr) {
-			tool.setMinWidth(TOOL_MIN_WIDTH);
-			tool.setToggleGroup(tools);
-			tool.setCursor(Cursor.HAND);
-		}
-		choiceShadow.setValue(Shadow.NONE);
-		VBox buttonsBox = new VBox(VBOX_SPACING);
-		buttonsBox.getChildren().addAll(toolsArr);
-		buttonsBox.getChildren().addAll(
-				formatLabel,
-				choiceShadow,
-				beveledBox,
-				firstFillColorPicker,
-				secondFillColorPicker,
-				copyFmt
-		);
-		buttonsBox.setPadding(new Insets(VBOX_PADDING));
-		buttonsBox.setStyle(VBOX_STYLE);
-		buttonsBox.setPrefWidth(VBOX_PREF_WIDTH);
+
 		gc.setLineWidth(LINE_WIDTH);
 
 		canvas.setOnMousePressed(event -> {
@@ -123,10 +56,10 @@ public class PaintPane extends BorderPane {
 			}
 
 			Format newFormat =  new Format(
-						choiceShadow.getValue(),
-						firstFillColorPicker.getValue(),
-						secondFillColorPicker.getValue(),
-						beveledBox.isSelected()
+						barraIzq.getChoiceShadow().getValue(),
+						barraIzq.getFirstFillColorPicker().getValue(),
+						barraIzq.getSecondFillColorPicker().getValue(),
+						barraIzq.getBeveledBox().isSelected()
 					);
 
 			// Crear la nueva figura según el botón seleccionado
@@ -156,16 +89,16 @@ public class PaintPane extends BorderPane {
 		});
 
 		canvas.setOnMouseClicked(event -> {
-			if (!selectionButton.isSelected()) {
+			if (!barraIzq.getSelectionButton().isSelected()) {
 				return;
 			}
 
 			Point eventPoint = new Point(event.getX(), event.getY());
 
 			Format copiedFormat = null;
-			if (copyFmt.isSelected() && selectedFigure != null) {
+			if (barraIzq.getCopyFmt().isSelected() && selectedFigure != null) {
 				copiedFormat = selectedFigure.getFormat();
-				copyFmt.setSelected(false);
+				barraIzq.getCopyFmt().setSelected(false);
 			}
 
 			// Busca la primer figura que contenga al punto
@@ -188,7 +121,7 @@ public class PaintPane extends BorderPane {
 		});
 
 		canvas.setOnMouseDragged(event -> {
-			if(!selectionButton.isSelected() || selectedFigure == null) {
+			if(!barraIzq.getSelectionButton().isSelected() || selectedFigure == null) {
 				return;
 			}
 			Point eventPoint = new Point(event.getX(), event.getY());
@@ -198,7 +131,7 @@ public class PaintPane extends BorderPane {
 			redrawCanvas();
 		});
 
-		deleteButton.setOnAction(event -> {
+		barraIzq.getDeleteButton().setOnAction(event -> {
 			if (selectedFigure == null) {
 				return;
 			}
@@ -207,8 +140,8 @@ public class PaintPane extends BorderPane {
 			redrawCanvas();
 		});
 
-		setLeft(buttonsBox);
-		setRight(canvas);
+		setLeft(barraIzq);
+		setCenter(canvas);
 	}
 
 	void redrawCanvas() {
@@ -220,15 +153,15 @@ public class PaintPane extends BorderPane {
 	}
 
 	private DrawableFigure createFigure(Point startPoint, Point endPoint, Format format) {
-		if (rectangleButton.isSelected()) {
+		if (barraIzq.getRectangleButton().isSelected()) {
 			return new DrawableRectangle(startPoint, endPoint, format);
-		} else if (circleButton.isSelected()) {
+		} else if (barraIzq.getCircleButton().isSelected()) {
 			double circleRadius = Math.abs(endPoint.getX() - startPoint.getX());
 			return new DrawableCircle(startPoint, circleRadius, format);
-		} else if (squareButton.isSelected()) {
+		} else if (barraIzq.getSquareButton().isSelected()) {
 			double size = Math.abs(endPoint.getX() - startPoint.getX());
 			return new DrawableSquare(startPoint, size, format);
-		} else if (ellipseButton.isSelected()) {
+		} else if (barraIzq.getEllipseButton().isSelected()) {
 			Point centerPoint = new Point(
 					(startPoint.getX() + endPoint.getX()) / 2,
 					(startPoint.getY() + endPoint.getY()) / 2
@@ -242,4 +175,3 @@ public class PaintPane extends BorderPane {
 	}
 
 }
-
