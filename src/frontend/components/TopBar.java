@@ -21,15 +21,15 @@ public class TopBar extends HBox {
     private final String HBOX_STYLE = "-fx-background-color: #999";
     private final int OFFSETS_VALUE = 5;
 
-    final Label layerLabel = new Label("Capas");
-    final ObservableList<Layer<DrawableFigure>> layers = FXCollections.observableArrayList();
-    final ChoiceBox<Layer<DrawableFigure>> layerOptions = new ChoiceBox<>(layers);
-    final RadioButton showButton = new RadioButton("Mostrar");
-    final RadioButton hideButton = new RadioButton("Ocultar");
-    final ToggleButton addLayerButton = new ToggleButton("Agregar Capa");
-    final ToggleButton deleteLayerButton = new ToggleButton("Eliminar Capa");
-    final ToggleButton bringToFrontButton = new ToggleButton("Traer al Frente");
-    final ToggleButton moveToBackButton = new ToggleButton("Enviar al Fondo");
+    private final Label layerLabel = new Label("Capas");
+    private final ObservableList<Layer<DrawableFigure>> layers = FXCollections.observableArrayList();
+    private final ChoiceBox<Layer<DrawableFigure>> layerOptions = new ChoiceBox<>(layers);
+    private final RadioButton showButton = new RadioButton("Mostrar");
+    private final RadioButton hideButton = new RadioButton("Ocultar");
+    private final ToggleButton addLayerButton = new ToggleButton("Agregar Capa");
+    private final ToggleButton deleteLayerButton = new ToggleButton("Eliminar Capa");
+    private final ToggleButton bringToFrontButton = new ToggleButton("Traer al Frente");
+    private final ToggleButton moveToBackButton = new ToggleButton("Enviar al Fondo");
 
     public TopBar(int spacing){
         super(spacing);
@@ -42,5 +42,39 @@ public class TopBar extends HBox {
         setPadding(new Insets(OFFSETS_VALUE));
         setStyle(HBOX_STYLE);
         setAlignment(Pos.CENTER);
+    }
+
+    //getters
+
+    public ToggleButton getMoveToBackButton() {
+        return moveToBackButton;
+    }
+
+    public ToggleButton getBringToFrontButton() {
+        return bringToFrontButton;
+    }
+
+    public ToggleButton getDeleteLayerButton() {
+        return deleteLayerButton;
+    }
+
+    public ToggleButton getAddLayerButton() {
+        return addLayerButton;
+    }
+
+    public RadioButton getHideButton() {
+        return hideButton;
+    }
+
+    public RadioButton getShowButton() {
+        return showButton;
+    }
+
+    public ChoiceBox<Layer<DrawableFigure>> getLayerOptions() {
+        return layerOptions;
+    }
+
+    public ObservableList<Layer<DrawableFigure>> getLayers() {
+        return layers;
     }
 }

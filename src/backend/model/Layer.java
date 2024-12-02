@@ -37,6 +37,14 @@ public class Layer<T> implements Comparable<Layer<T>> {
     }
 
     public void bringToFront(T figure){
+        if(figures.remove(figure)){
+            figures.addLast(figure);
+        }
+    }
 
+    public void moveToBack(T figure){
+        if(figures.remove(figure)){
+            figures.addFirst(figure);
+        }
     }
 }

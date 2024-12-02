@@ -49,6 +49,20 @@ public class CanvasState<T extends Figure> extends ArrayList<Layer<T>> {
         }
     }
 
+    public void bringToFront(T figure){
+        Layer<T> layer = get(currentLayerId);
+        if(layer.isVisible()){
+            layer.bringToFront(figure);
+        }
+    }
+
+    public void moveToBack(T figure){
+        Layer<T> layer = get(currentLayerId);
+        if(layer.isVisible()){
+            layer.moveToBack(figure);
+        }
+    }
+
     public void addFigure(T figure) {
         Layer<T> layer = get(currentLayerId);
         if(layer.isVisible()){

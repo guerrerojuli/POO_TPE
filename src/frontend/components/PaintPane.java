@@ -113,7 +113,7 @@ public class PaintPane extends BorderPane {
 	private void setupLeftBarEvents() {
 		leftBar.getDeleteButton().setOnAction(event -> {
 			if (selectedFigure != null) {
-				canvasState.remove(selectedFigure);
+				canvasState.deleteFigure(selectedFigure, canvasState.getCurrentLayer().getLayerId());
 				selectedFigure = null;
 				redrawCanvas();
 			}
@@ -148,22 +148,32 @@ public class PaintPane extends BorderPane {
 	}
 
 	private void setupTopBarEvents() {
-		topBar.layerOptions.setOnAction( event -> {
-			canvasState.setCurrentLayer(topBar.layerOptions.getValue());
+		topBar.getLayerOptions().setOnAction( event -> {
+			canvasState.setCurrentLayer(topBar.getLayerOptions().getValue());
 			setCurrentLayerMode();
 		});
 
-		topBar.layers.addAll(canvasState.getLayers());
-		topBar.layerOptions.setValue(canvasState.getLayers().getFirst());
+		topBar.getLayers().addAll(canvasState.getLayers());
+		topBar.getLayerOptions().setValue(canvasState.getLayers().getFirst());
 
-		bindButtonToRedraw(topBar.showButton, () -> setCurrentLayerMode(true));
-		bindButtonToRedraw(topBar.hideButton, () -> {
+		bindButtonToRedraw(topBar.getShowButton(), () -> setCurrentLayerMode(true));
+		bindButtonToRedraw(topBar.getHideButton(), () -> {
 			leftBar.getSelectionButton().setSelected(false);
 			setCurrentLayerMode(false);
 			redrawCanvas();
 		});
-		bindButtonToLayerAction(topBar.addLayerButton, canvasState::addLayer);
-		bindButtonToLayerActionAndRedraw(topBar.deleteLayerButton, canvasState::deleteLayer);
+		bindButtonToLayerAction(topBar.getAddLayerButton(), canvasState::addLayer);
+		bindButtonToLayerActionAndRedraw(topBar.getDeleteLayerButton(), canvasState::deleteLayer);
+
+		bindButtonToRedraw(topBar.getBringToFrontButton(), () -> {
+			canvasState.bringToFront(selectedFigure);
+			topBar.getBringToFrontButton().setSelected(false);
+		});
+
+		bindButtonToRedraw(topBar.getMoveToBackButton(), () -> {
+			canvasState.moveToBack(selectedFigure);
+			topBar.getMoveToBackButton().setSelected(false);
+		});
 
 		setCurrentLayerMode();
 	}
@@ -208,8 +218,8 @@ public class PaintPane extends BorderPane {
 	}
 	private void setCurrentLayerMode(boolean visible) {
 		canvasState.getCurrentLayer().setVisible(visible);
-		topBar.showButton.setSelected(visible);
-		topBar.hideButton.setSelected(!visible);
+		topBar.getShowButton().setSelected(visible);
+		topBar.getHideButton().setSelected(!visible);
 	}
 
 	private void bindButtonToRedraw(ButtonBase button, Runnable action) {
@@ -219,14 +229,17 @@ public class PaintPane extends BorderPane {
 	private void bindButtonToLayerAction(ToggleButton button, Runnable action) {
 		button.setOnAction(x -> {
 			action.run();
-			topBar.layers.setAll(canvasState.getLayers());
-			topBar.layerOptions.setValue(canvasState.getCurrentLayer());
+			topBar.getLayers().setAll(canvasState.getLayers());
+			topBar.getLayerOptions().setValue(canvasState.getCurrentLayer());
 			setCurrentLayerMode();
 			button.setSelected(false);
 		});
 	}
+
 	private void bindButtonToLayerActionAndRedraw(ToggleButton button, Runnable action) {
 		bindButtonToLayerAction(button, () -> { action.run(); redrawCanvas(); });
 	}
+
+//	private void bindButtonTo
 
 }
