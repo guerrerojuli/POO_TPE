@@ -18,6 +18,12 @@ public class Rectangle implements Figure {
     }
 
     @Override
+    public void move(double dx, double dy) {
+        topLeft.move(dx, dy);
+        bottomRight.move(dx, dy);
+    }
+
+    @Override
     public String toString() {
         return String.format("Rectángulo [ %s , %s ]", topLeft, bottomRight);
     }

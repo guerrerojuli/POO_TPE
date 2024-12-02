@@ -11,7 +11,7 @@ public interface Drawable extends Figure {
         // Get all the figures features
         Format format = this.getFormat();
         // Draw the corresponding shade type
-        format.getShadow().drawShade(gc, this, format.getFirstFillColor() );
+        format.getShadow().drawShadow(gc, this, format.getFirstFillColor() );
         // Set the gradient fill
         gc.setFill(this.getFill(format.getFirstFillColor(), format.getSecondFillColor()));
         // Draw the figure

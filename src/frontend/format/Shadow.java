@@ -8,7 +8,7 @@ import javafx.scene.paint.Color;
 public enum Shadow {
     NONE(0, false){
         @Override
-        public void drawShade(GraphicsContext gc, Drawable figure, Color color) {}
+        public void drawShadow(GraphicsContext gc, Drawable figure, Color color) {}
     },
     SIMPLE(10, false),
     COLORED(10, true),
@@ -24,7 +24,7 @@ public enum Shadow {
         this.isColored = isColored;
     }
 
-    public void drawShade(GraphicsContext gc, Drawable figure, Color figureColor) {
+    public void drawShadow(GraphicsContext gc, Drawable figure, Color figureColor) {
         gc.setFill( this.isColored ? figureColor.darker(): DEFAULT_COLOR);
         figure.move(this.offset, this.offset);
         figure.drawShape(gc);
