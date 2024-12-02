@@ -20,6 +20,7 @@ public class PaintPane extends BorderPane {
 	private static final int HBOX_SPACING = 10;
 
 	private final LeftBar leftBar;
+    private final RightBar rightBar;
 	private final TopBar topBar;
 	private final Canvas canvas;
 	private final GraphicsContext gc;
@@ -32,6 +33,7 @@ public class PaintPane extends BorderPane {
 	public PaintPane(CanvasState<DrawableFigure> canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
 		this.leftBar = new LeftBar(VBOX_SPACING);
+        this.rightBar = new RightBar(VBOX_SPACING);
 		this.topBar = new TopBar(HBOX_SPACING);
 		this.canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 		this.gc = canvas.getGraphicsContext2D();
@@ -40,10 +42,12 @@ public class PaintPane extends BorderPane {
 		setupCanvasEvents(statusPane);
 		setupTopBarEvents();
 		setupLeftBarEvents();
+        setupRightBarEvents();
 
 
 		setTop(topBar);
 		setLeft(leftBar);
+        setRight(rightBar);
 		setCenter(canvas);
 	}
 
@@ -147,6 +151,33 @@ public class PaintPane extends BorderPane {
 				.addListener((obs, oldVal, newVal) -> applyFormatChange(format -> format.setSecondFillColor(newVal)));
 	}
 
+    private void setupRightBarEvents() {
+        rightBar.getRotationButton().setOnAction(event -> {
+            selectedFigure.rotate();
+            rightBar.getRotationButton().setSelected(false);
+        });
+
+        rightBar.getFlipHButton().setOnAction(event -> {
+            /*selectedFigure.flipH();*/
+            rightBar.getFlipHButton().setSelected(false);
+        });
+
+    	rightBar.getFlipVButton().setOnAction(event -> {
+            /*selectedFigure.flipV();*/
+            rightBar.getFlipVButton().setSelected(false);
+        });
+
+        rightBar.getDuplicateButton().setOnAction(event -> {
+            /*canvasState.add(selectedFigure.duplicate());*/
+            rightBar.getDuplicateButton().setSelected(false);
+        });
+
+        rightBar.getDivideButton().setOnAction(event -> {
+            /*canvasState.addAll(selectedFigure.divide());*/
+            rightBar.getDivideButton().setSelected(false);
+        });
+    }
+
 	private void setupTopBarEvents() {
 		topBar.getLayerOptions().setOnAction( event -> {
 			canvasState.setCurrentLayer(topBar.getLayerOptions().getValue());
@@ -239,7 +270,4 @@ public class PaintPane extends BorderPane {
 	private void bindButtonToLayerActionAndRedraw(ToggleButton button, Runnable action) {
 		bindButtonToLayerAction(button, () -> { action.run(); redrawCanvas(); });
 	}
-
-//	private void bindButtonTo
-
 }
