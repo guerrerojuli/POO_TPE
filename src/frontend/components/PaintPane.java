@@ -97,6 +97,7 @@ public class PaintPane extends BorderPane {
 				if (copiedFormat != null) {
 					selectedFigure.setFormat(copiedFormat);
 					copiedFormat = null;
+					leftBar.getCopyFmt().setSelected(false);
 				}
 
 				leftBar.updateFormat(selectedFigure.getFormat());
