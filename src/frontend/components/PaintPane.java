@@ -6,6 +6,8 @@ import frontend.drawable.*;
 import frontend.format.Format;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ButtonBase;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.BorderPane;
 
 import java.util.function.Consumer;
@@ -14,8 +16,11 @@ public class PaintPane extends BorderPane {
 	private static final int CANVAS_WIDTH = 800;
 	private static final int CANVAS_HEIGHT = 600;
 	private static final int LINE_WIDTH = 1;
+	private static final int VBOX_SPACING = 10;
+	private static final int HBOX_SPACING = 10;
 
 	private final LeftBar leftBar;
+	private final TopBar topBar;
 	private final Canvas canvas;
 	private final GraphicsContext gc;
 
@@ -26,7 +31,8 @@ public class PaintPane extends BorderPane {
 
 	public PaintPane(CanvasState<DrawableFigure> canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
-		this.leftBar = new LeftBar(10);
+		this.leftBar = new LeftBar(VBOX_SPACING);
+		this.topBar = new TopBar(HBOX_SPACING);
 		this.canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 		this.gc = canvas.getGraphicsContext2D();
 
@@ -35,7 +41,7 @@ public class PaintPane extends BorderPane {
 		setupLeftBarEvents();
 
 
-
+		setTop(topBar);
 		setLeft(leftBar);
 		setCenter(canvas);
 	}
@@ -140,6 +146,27 @@ public class PaintPane extends BorderPane {
 				.addListener((obs, oldVal, newVal) -> applyFormatChange(format -> format.setSecondFillColor(newVal)));
 	}
 
+	private void setupTopBarEvents() {
+		topBar.layerOptions.setOnAction( event -> {
+			canvasState.setCurrentLayer(topBar.layerOptions.getValue());
+			setCurrentLayerMode();
+		});
+
+		topBar.layers.addAll(canvasState.getLayers());
+		topBar.layerOptions.setValue(canvasState.getLayers().getFirst());
+
+		bindButtonToRedraw(topBar.showButton, () -> setCurrentLayerMode(true));
+		bindButtonToRedraw(topBar.hideButton, () -> {
+			leftBar.getSelectionButton().setSelected(false);
+			setCurrentLayerMode(false);
+			redrawCanvas();
+		});
+		bindButtonToLayerAction(topBar.addLayerButton, canvasState::addLayer);
+		bindButtonToLayerActionAndRedraw(topBar.deleteLayerButton, canvasState::deleteLayer);
+
+		setCurrentLayerMode();
+	}
+
 	private void applyFormatChange(Consumer<Format> formatUpdater) {
 		formatUpdater.accept(leftBar.getFormat());
 		if (selectedFigure != null)	selectedFigure.setFormat(leftBar.getFormat());
@@ -174,4 +201,31 @@ public class PaintPane extends BorderPane {
 		}
 		return null;
 	}
+
+	private void setCurrentLayerMode(){
+		this.setCurrentLayerMode(canvasState.getCurrentLayer().isVisible());
+	}
+	private void setCurrentLayerMode(boolean visible) {
+		canvasState.getCurrentLayer().setVisible(visible);
+		topBar.showButton.setSelected(visible);
+		topBar.hideButton.setSelected(!visible);
+	}
+
+	private void bindButtonToRedraw(ButtonBase button, Runnable action) {
+		button.setOnAction((x) -> { action.run(); redrawCanvas(); });
+	}
+
+	private void bindButtonToLayerAction(ToggleButton button, Runnable action) {
+		button.setOnAction(x -> {
+			action.run();
+			topBar.layers.setAll(canvasState.getLayers());
+			topBar.layerOptions.setValue(canvasState.getCurrentLayer());
+			setCurrentLayerMode();
+			button.setSelected(false);
+		});
+	}
+	private void bindButtonToLayerActionAndRedraw(ToggleButton button, Runnable action) {
+		bindButtonToLayerAction(button, () -> { action.run(); redrawCanvas(); });
+	}
+
 }

@@ -35,4 +35,8 @@ public class Layer<T> implements Comparable<Layer<T>> {
     public int compareTo(Layer<T> o) {
         return this.id - o.id;
     }
+
+    public void bringToFront(T figure){
+
+    }
 }
