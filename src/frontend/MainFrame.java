@@ -1,6 +1,9 @@
 package frontend;
 
 import backend.CanvasState;
+import frontend.components.AppMenuBar;
+import frontend.components.PaintPane;
+import frontend.components.StatusPane;
 import javafx.scene.layout.VBox;
 
 public class MainFrame extends VBox {

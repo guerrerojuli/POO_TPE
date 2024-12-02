@@ -1,4 +1,4 @@
-package frontend;
+package frontend.components;
 
 import javafx.scene.control.*;
 

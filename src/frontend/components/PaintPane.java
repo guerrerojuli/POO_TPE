@@ -1,14 +1,14 @@
-package frontend;
+package frontend.components;
 
 import backend.CanvasState;
 import backend.model.*;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -17,15 +17,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PaintPane extends BorderPane {
+	// Dimensiones
+	private final int CANVAS_WIDTH = 800,
+			CANVAS_HEIGHT = 600,
+			TOOL_MIN_WIDTH = 90,
+			VBOX_SPACING = 10,
+			VBOX_PADDING = 5,
+			LINE_WIDTH = 1,
+			VBOX_PREF_WIDTH = 100;
+
+	private final String VBOX_STYLE = "-fx-background-color: #999";
 
 	// BackEnd
 	CanvasState canvasState;
 
 	// Canvas y relacionados
-	Canvas canvas = new Canvas(800, 600);
+	Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 	GraphicsContext gc = canvas.getGraphicsContext2D();
 	Color lineColor = Color.BLACK;
-	Color defaultFillColor = Color.YELLOW;
+	Color defaultFirstFillColor = Color.YELLOW;
+	Color defaultSecondFillColor = Color.RED;
 
 	// Botones Barra Izquierda
 	ToggleButton selectionButton = new ToggleButton("Seleccionar");
@@ -35,8 +46,32 @@ public class PaintPane extends BorderPane {
 	ToggleButton ellipseButton = new ToggleButton("Elipse");
 	ToggleButton deleteButton = new ToggleButton("Borrar");
 
+
+	/* Formato */
+	// Etiqueta
+	Label formatLabel = new Label("Formato");
+
+	// Sombras
+	ChoiceBox<Shadow> choiceShadow = new ChoiceBox<>(
+			FXCollections.observableArrayList(
+					Shadow.NONE,
+					Shadow.SIMPLE,
+					Shadow.COLORED,
+					Shadow.SIMPLE_INVERSED,
+					Shadow.COLORED_INVERSED
+			)
+	);
+
+	// Biselado
+	CheckBox beveledBox = new CheckBox("Biselado");
+
 	// Selector de color de relleno
-	ColorPicker fillColorPicker = new ColorPicker(defaultFillColor);
+	ColorPicker firstFillColorPicker = new ColorPicker(defaultFirstFillColor);
+	ColorPicker secondFillColorPicker = new ColorPicker(defaultSecondFillColor);
+
+	// Copiar Formato
+	ToggleButton copyFmt = new ToggleButton("Copiar Fmt.");
+
 
 	// Dibujar una figura
 	Point startPoint;
@@ -56,17 +91,24 @@ public class PaintPane extends BorderPane {
 		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton};
 		ToggleGroup tools = new ToggleGroup();
 		for (ToggleButton tool : toolsArr) {
-			tool.setMinWidth(90);
+			tool.setMinWidth(TOOL_MIN_WIDTH);
 			tool.setToggleGroup(tools);
 			tool.setCursor(Cursor.HAND);
 		}
-		VBox buttonsBox = new VBox(10);
+		VBox buttonsBox = new VBox(VBOX_SPACING);
 		buttonsBox.getChildren().addAll(toolsArr);
-		buttonsBox.getChildren().add(fillColorPicker);
-		buttonsBox.setPadding(new Insets(5));
-		buttonsBox.setStyle("-fx-background-color: #999");
-		buttonsBox.setPrefWidth(100);
-		gc.setLineWidth(1);
+		buttonsBox.getChildren().addAll(
+				formatLabel,
+				choiceShadow,
+				beveledBox,
+				firstFillColorPicker,
+				secondFillColorPicker,
+				copyFmt
+		);
+		buttonsBox.setPadding(new Insets(VBOX_PADDING));
+		buttonsBox.setStyle(VBOX_STYLE);
+		buttonsBox.setPrefWidth(VBOX_PREF_WIDTH);
+		gc.setLineWidth(LINE_WIDTH);
 
 		canvas.setOnMousePressed(event -> {
 			startPoint = new Point(event.getX(), event.getY());
@@ -74,31 +116,36 @@ public class PaintPane extends BorderPane {
 
 		canvas.setOnMouseReleased(event -> {
 			Point endPoint = new Point(event.getX(), event.getY());
+
 			if(startPoint == null) {
 				return ;
 			}
+
 			if(endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()) {
 				return ;
 			}
+
 			Figure newFigure = null;
+			Format newFormat = (copyFmt.isSelected() && selectedFigure == null) ?
+				selectedFigure.getFormat().getCopy() :
+				new Format(choiceShadow.getValue(), firstFillColorPicker.getValue(), secondFillColorPicker.getValue(), beveledBox.isSelected());
+
 			if(rectangleButton.isSelected()) {
-				newFigure = new Rectangle(startPoint, endPoint);
-			}
-			else if(circleButton.isSelected()) {
+				newFigure = new Rectangle(startPoint, endPoint, newFormat);
+			} else if(circleButton.isSelected()) {
 				double circleRadius = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new Circle(startPoint, circleRadius);
+				newFigure = new Circle(startPoint, circleRadius, newFormat);
 			} else if(squareButton.isSelected()) {
 				double size = Math.abs(endPoint.getX() - startPoint.getX());
-				newFigure = new Square(startPoint, size);
+				newFigure = new Square(startPoint, size, newFormat);
 			} else if(ellipseButton.isSelected()) {
 				Point centerPoint = new Point(Math.abs(endPoint.x + startPoint.x) / 2, (Math.abs((endPoint.y + startPoint.y)) / 2));
 				double sMayorAxis = Math.abs(endPoint.x - startPoint.x);
 				double sMinorAxis = Math.abs(endPoint.y - startPoint.y);
-				newFigure = new Ellipse(centerPoint, sMayorAxis, sMinorAxis);
+				newFigure = new Ellipse(centerPoint, sMayorAxis, sMinorAxis, newFormat);
 			} else {
 				return ;
 			}
-			figureColorMap.put(newFigure, fillColorPicker.getValue());
 			canvasState.addFigure(newFigure);
 			startPoint = null;
 			redrawCanvas();
@@ -148,6 +195,7 @@ public class PaintPane extends BorderPane {
 				Point eventPoint = new Point(event.getX(), event.getY());
 				double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
 				double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
+				//selectedFigure.move(diffX, diffY);
 				if(selectedFigure instanceof Rectangle) {
 					Rectangle rectangle = (Rectangle) selectedFigure;
 					rectangle.getTopLeft().x += diffX;
@@ -194,6 +242,7 @@ public class PaintPane extends BorderPane {
 				gc.setStroke(lineColor);
 			}
 			gc.setFill(figureColorMap.get(figure));
+			//figure.draw(gc);
 			if(figure instanceof Rectangle) {
 				Rectangle rectangle = (Rectangle) figure;
 				gc.fillRect(rectangle.getTopLeft().getX(), rectangle.getTopLeft().getY(),
@@ -241,5 +290,4 @@ public class PaintPane extends BorderPane {
 		}
 		return found;
 	}
-
 }
