@@ -1,14 +1,14 @@
 package frontend.drawable;
 
-import backend.model.Ellipse;
 import backend.model.Point;
+import backend.model.Square;
 import frontend.format.Format;
 
-public class DrawableEllipse extends Ellipse implements DrawableEllipseInterface {
+public class DrawableSquare extends Square implements DrawableRectangleInterface {
     private Format format;
 
-    public DrawableEllipse(Point centerPoint, double sMayorAxis, double sMinorAxis, Format format) {
-        super(centerPoint, sMayorAxis, sMinorAxis);
+    public DrawableSquare(Point topLeft, double size, Format format) {
+        super(topLeft, size);
         this.format = format;
     }
 

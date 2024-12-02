@@ -1,5 +1,5 @@
 package backend.model;
 
-public abstract class Figure implements Movable {
+public interface Figure extends Movable {
     boolean contains(Point p);
 }

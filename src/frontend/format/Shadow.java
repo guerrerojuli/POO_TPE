@@ -2,13 +2,14 @@ package frontend.format;
 
 
 import frontend.drawable.Drawable;
+import frontend.drawable.DrawableFigure;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public enum Shadow {
     NONE(0, false){
         @Override
-        public void drawShadow(GraphicsContext gc, Drawable figure, Color color) {}
+        public void drawShadow(GraphicsContext gc, DrawableFigure figure, Color color) {}
     },
     SIMPLE(10, false),
     COLORED(10, true),
@@ -24,10 +25,10 @@ public enum Shadow {
         this.isColored = isColored;
     }
 
-    public void drawShadow(GraphicsContext gc, Drawable figure, Color figureColor) {
+    public void drawShadow(GraphicsContext gc, DrawableFigure figure, Color figureColor) {
         gc.setFill( this.isColored ? figureColor.darker(): DEFAULT_COLOR);
         figure.move(this.offset, this.offset);
-        figure.drawShape();
+        figure.drawShape(gc);
         figure.move(-this.offset, -this.offset);
     }
 

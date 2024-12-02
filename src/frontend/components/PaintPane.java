@@ -2,8 +2,7 @@ package frontend.components;
 
 import backend.CanvasState;
 import backend.model.*;
-import frontend.drawable.Drawable;
-import frontend.drawable.DrawableRectangle;
+import frontend.drawable.*;
 import frontend.format.Format;
 import frontend.format.Shadow;
 import javafx.collections.FXCollections;
@@ -29,7 +28,7 @@ public class PaintPane extends BorderPane {
 	private final String VBOX_STYLE = "-fx-background-color: #999";
 
 	// BackEnd
-	CanvasState<Drawable> canvasState;
+	CanvasState<DrawableFigure> canvasState;
 
 	// Canvas y relacionados
 	Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -61,6 +60,7 @@ public class PaintPane extends BorderPane {
 			)
 	);
 
+
 	// Biselado
 	CheckBox beveledBox = new CheckBox("Biselado");
 
@@ -76,13 +76,13 @@ public class PaintPane extends BorderPane {
 	Point startPoint;
 
 	// Seleccionar una figura
-	Drawable selectedFigure;
+	DrawableFigure selectedFigure;
 
 	// StatusBar
 	StatusPane statusPane;
 
 
-	public PaintPane(CanvasState<Drawable> canvasState, StatusPane statusPane) {
+	public PaintPane(CanvasState<DrawableFigure> canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
 		this.statusPane = statusPane;
 		ToggleButton[] toolsArr = {selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton};
@@ -93,6 +93,7 @@ public class PaintPane extends BorderPane {
 			tool.setCursor(Cursor.HAND);
 		}
 		VBox buttonsBox = new VBox(VBOX_SPACING);
+		choiceShadow.setValue(Shadow.NONE);
 		buttonsBox.getChildren().addAll(toolsArr);
 		buttonsBox.getChildren().addAll(
 				formatLabel,
@@ -122,9 +123,7 @@ public class PaintPane extends BorderPane {
 				return ;
 			}
 
-			Format newFormat = (copyFmt.isSelected() && selectedFigure != null)
-					? selectedFigure.getFormat().getCopy()
-					: new Format(
+			Format newFormat =  new Format(
 						choiceShadow.getValue(),
 						firstFillColorPicker.getValue(),
 						secondFillColorPicker.getValue(),
@@ -132,13 +131,13 @@ public class PaintPane extends BorderPane {
 					);
 
 			// Crear la nueva figura según el botón seleccionado
-			Drawable newFigure = createFigure(startPoint, endPoint, newFormat);
+			DrawableFigure newFigure = createFigure(startPoint, endPoint, newFormat);
 
 			if (newFigure == null) {
 				return;
 			}
 
-			canvasState.addFigure(newFigure);
+			canvasState.add(newFigure);
 			startPoint = null;
 			redrawCanvas();
 		});
@@ -147,7 +146,7 @@ public class PaintPane extends BorderPane {
 			Point eventPoint = new Point(event.getX(), event.getY());
 
 			// Busca la primer figura que contenga al punto
-			String label = canvasState.figures().stream()
+			String label = canvasState.stream()
 					.filter(figure -> figure.contains(eventPoint))
 					.map(Figure::toString)
 					.findFirst()
@@ -164,16 +163,26 @@ public class PaintPane extends BorderPane {
 
 			Point eventPoint = new Point(event.getX(), event.getY());
 
+			Format copiedFormat = null;
+			if (copyFmt.isSelected() && selectedFigure != null) {
+				copiedFormat = selectedFigure.getFormat();
+			}
+
 			// Busca la primer figura que contenga al punto
-			selectedFigure = canvasState.figures().stream()
+			selectedFigure = canvasState.stream()
 					.filter(figure -> figure.contains(eventPoint))
 					.findFirst()
 					.orElse(null);
 
 			// Actualiza el status pane basado en la selección
-			String status = (selectedFigure != null)
-					? "Se seleccionó: " + selectedFigure
-					: "Ninguna figura encontrada";
+			String status;
+			if (selectedFigure != null) {
+				selectedFigure.setFormat(copiedFormat);
+				status = "Se seleccionó: " + selectedFigure;
+
+			} else {
+				status = "Ninguna figura encontrada";
+			}
 
 			statusPane.updateStatus(status);
 			redrawCanvas();
@@ -194,7 +203,7 @@ public class PaintPane extends BorderPane {
 			if (selectedFigure == null) {
 				return;
 			}
-			canvasState.deleteFigure(selectedFigure);
+			canvasState.remove(selectedFigure);
 			selectedFigure = null;
 			redrawCanvas();
 		});
@@ -208,10 +217,10 @@ public class PaintPane extends BorderPane {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
 		// Dibuja cada figura, le dice si está seleccionada para que cambie su borde
-		canvasState.figures().forEach(figure -> figure.draw(gc, figure == selectedFigure));
+		canvasState.forEach(figure -> figure.draw(gc, figure == selectedFigure));
 	}
 
-	private Drawable createFigure(Point startPoint, Point endPoint, Format format) {
+	private DrawableFigure createFigure(Point startPoint, Point endPoint, Format format) {
 		if (rectangleButton.isSelected()) {
 			return new DrawableRectangle(startPoint, endPoint, format);
 		} else if (circleButton.isSelected()) {
