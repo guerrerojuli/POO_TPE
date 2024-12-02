@@ -15,7 +15,7 @@ public class DrawableRectangle extends Rectangle implements Drawable {
 
     @Override
     public void drawShape(GraphicsContext gc) {
-        format.getShadow().drawShadow(gc, this, );
+        format.getShadow().drawShadow(gc, this, ); // NO SE QUE VA EN EL COLOR, atte: juli.
         gc.fillRect(this.getTopLeft().getX(), this.getTopLeft().getY(),
                 Math.abs(this.getTopLeft().getX() - this.getBottomRight().getX()), Math.abs(this.getTopLeft().getY() - this.getBottomRight().getY()));
         gc.strokeRect(this.getTopLeft().getX(), this.getTopLeft().getY(),
@@ -29,11 +29,11 @@ public class DrawableRectangle extends Rectangle implements Drawable {
 
     @Override
     public void setFormat(Format format){
-
+        this.format = format;
     }
 
     @Override
     public Format getFormat(){
-
+        return format;
     }
 }
