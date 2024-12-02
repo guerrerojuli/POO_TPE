@@ -60,7 +60,6 @@ public class PaintPane extends BorderPane {
 			)
 	);
 
-
 	// Biselado
 	CheckBox beveledBox = new CheckBox("Biselado");
 
@@ -92,8 +91,8 @@ public class PaintPane extends BorderPane {
 			tool.setToggleGroup(tools);
 			tool.setCursor(Cursor.HAND);
 		}
-		VBox buttonsBox = new VBox(VBOX_SPACING);
 		choiceShadow.setValue(Shadow.NONE);
+		VBox buttonsBox = new VBox(VBOX_SPACING);
 		buttonsBox.getChildren().addAll(toolsArr);
 		buttonsBox.getChildren().addAll(
 				formatLabel,
@@ -166,6 +165,7 @@ public class PaintPane extends BorderPane {
 			Format copiedFormat = null;
 			if (copyFmt.isSelected() && selectedFigure != null) {
 				copiedFormat = selectedFigure.getFormat();
+				copyFmt.setSelected(false);
 			}
 
 			// Busca la primer figura que contenga al punto
@@ -175,21 +175,20 @@ public class PaintPane extends BorderPane {
 					.orElse(null);
 
 			// Actualiza el status pane basado en la selección
-			String status;
-			if (selectedFigure != null) {
+			if (selectedFigure != null && copiedFormat != null) {
 				selectedFigure.setFormat(copiedFormat);
-				status = "Se seleccionó: " + selectedFigure;
-
-			} else {
-				status = "Ninguna figura encontrada";
 			}
+
+			String status = (selectedFigure != null)
+					? "Se seleccionó: " + selectedFigure
+					: "Ninguna figura encontrada";
 
 			statusPane.updateStatus(status);
 			redrawCanvas();
 		});
 
 		canvas.setOnMouseDragged(event -> {
-			if(!selectionButton.isSelected()) {
+			if(!selectionButton.isSelected() || selectedFigure == null) {
 				return;
 			}
 			Point eventPoint = new Point(event.getX(), event.getY());

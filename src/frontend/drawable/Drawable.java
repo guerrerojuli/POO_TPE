@@ -5,10 +5,11 @@ import javafx.scene.paint.Color;
 
 public interface Drawable{
     default void draw(GraphicsContext gc, boolean isSelected){
-        gc.setStroke(isSelected ? Color.RED : Color.BLACK);
+        gc.setStroke(Color.TRANSPARENT);
         drawShadow(gc);
         drawGradient(gc);
         drawBezel(gc);
+        gc.setStroke(isSelected ? Color.RED : Color.BLACK);
         drawShape(gc);
     }
 
