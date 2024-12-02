@@ -4,98 +4,74 @@ import backend.CanvasState;
 import backend.model.*;
 import frontend.drawable.*;
 import frontend.format.Format;
-import frontend.format.Shadow;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
+
+import java.util.function.Consumer;
 
 public class PaintPane extends BorderPane {
-	// Dimensiones
-	private final int CANVAS_WIDTH = 800,
-			CANVAS_HEIGHT = 600,
-			LINE_WIDTH = 1,
-			VBOX_SPACING = 10;
+	private static final int CANVAS_WIDTH = 800;
+	private static final int CANVAS_HEIGHT = 600;
+	private static final int LINE_WIDTH = 1;
 
-	// Barra lateral izquierda
-	LeftBar leftBar = new LeftBar(VBOX_SPACING);
+	private final LeftBar leftBar;
+	private final Canvas canvas;
+	private final GraphicsContext gc;
 
-	// BackEnd
-	CanvasState<DrawableFigure> canvasState;
-
-	// Canvas y relacionados
-	Canvas canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
-	GraphicsContext gc = canvas.getGraphicsContext2D();
-
-	// Dibujar una figura
-	Point startPoint;
-
-	// Seleccionar una figura
-	DrawableFigure selectedFigure;
-
-	Format copiedFormat = null;
-
-	// StatusBar
-	StatusPane statusPane;
+	private final CanvasState<DrawableFigure> canvasState;
+	private DrawableFigure selectedFigure;
+	private Point startPoint;
+	private Format copiedFormat;
 
 	public PaintPane(CanvasState<DrawableFigure> canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
-		this.statusPane = statusPane;
+		this.leftBar = new LeftBar(10);
+		this.canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+		this.gc = canvas.getGraphicsContext2D();
 
 		gc.setLineWidth(LINE_WIDTH);
+		setupCanvasEvents(statusPane);
+		setupLeftBarEvents();
 
-		canvas.setOnMousePressed(event -> {
-			startPoint = new Point(event.getX(), event.getY());
-		});
+
+
+		setLeft(leftBar);
+		setCenter(canvas);
+	}
+
+	private void setupCanvasEvents(StatusPane statusPane) {
+		canvas.setOnMousePressed(event -> startPoint = new Point(event.getX(), event.getY()));
 
 		canvas.setOnMouseReleased(event -> {
+			if(startPoint == null)	return ;
+
 			Point endPoint = new Point(event.getX(), event.getY());
+			if (endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()) 	return;
 
-			if(startPoint == null) {
-				return ;
+			DrawableFigure newFigure = createFigure(startPoint, endPoint, getCurrentFormat());
+
+			if (newFigure != null) {
+				canvasState.addFigure(newFigure);
+				redrawCanvas();
 			}
-
-			if(endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()) {
-				return ;
-			}
-
-			Format newFormat =  new Format(
-						leftBar.getChoiceShadow().getValue(),
-						leftBar.getFirstFillColorPicker().getValue(),
-						leftBar.getSecondFillColorPicker().getValue(),
-						leftBar.getBeveledBox().isSelected()
-					);
-
-			// Crear la nueva figura según el botón seleccionado
-			DrawableFigure newFigure = createFigure(startPoint, endPoint, newFormat);
-
-			if (newFigure == null) {
-				return;
-			}
-
-			canvasState.addFigure(newFigure);
 			startPoint = null;
-			redrawCanvas();
 		});
 
 		canvas.setOnMouseMoved(event -> {
 			Point eventPoint = new Point(event.getX(), event.getY());
 
-			// Busca la primer figura que contenga al punto
 			String label = canvasState.intersectingFigures(eventPoint)
 					.filter(figure -> figure.contains(eventPoint))
 					.map(Figure::toString)
 					.findFirst()
 					.orElse(eventPoint.toString());
 
-			// Actualiza status pane
 			statusPane.updateStatus(label);
 		});
 
 		canvas.setOnMouseClicked(event -> {
-			if (!leftBar.getSelectionButton().isSelected()) {
-				return;
-			}
+			if (!leftBar.getSelectionButton().isSelected())	return;
 
 			Point eventPoint = new Point(event.getX(), event.getY());
 
@@ -120,106 +96,82 @@ public class PaintPane extends BorderPane {
 		});
 
 		canvas.setOnMouseDragged(event -> {
-			if(!leftBar.getSelectionButton().isSelected() || selectedFigure == null) {
-				return;
-			}
-			Point eventPoint = new Point(event.getX(), event.getY());
-			double diffX = (eventPoint.getX() - startPoint.getX()) / 100;
-			double diffY = (eventPoint.getY() - startPoint.getY()) / 100;
-			selectedFigure.move(diffX, diffY);
+			if (!leftBar.getSelectionButton().isSelected() || selectedFigure == null)	return;
+			selectedFigure.move(event.getX() - startPoint.getX(), event.getY() - startPoint.getY());
+			startPoint = new Point(event.getX(), event.getY());
 			redrawCanvas();
 		});
+	}
 
+	private void setupLeftBarEvents() {
 		leftBar.getDeleteButton().setOnAction(event -> {
-			if (selectedFigure == null) {
-				return;
+			if (selectedFigure != null) {
+				canvasState.remove(selectedFigure);
+				selectedFigure = null;
+				redrawCanvas();
 			}
-			canvasState.remove(selectedFigure);
-			selectedFigure = null;
-			redrawCanvas();
 		});
 
-		leftBar.getChoiceShadow()
-				.getSelectionModel()
-				.selectedItemProperty()
-				.addListener((observable, oldValue, newValue) -> {
-					leftBar.getFormat().setShadow(newValue);
-					if (selectedFigure != null) {
-						selectedFigure.setFormat(leftBar.getFormat());
-					}
-					redrawCanvas();
-				});
+		leftBar.getCopyFmt().setOnAction(event -> {
+			// Si se está desseleccionando se remueve la copia
+			if (!leftBar.getCopyFmt().isSelected()) {
+				copiedFormat = null;
+				return;
+			}
+			// Si no hay nada seleccionado no hace nada
+			if (selectedFigure == null)	{
+				leftBar.getCopyFmt().setSelected(false);
+				return;
+			}
+			copiedFormat = selectedFigure.getFormat().getCopy();
+		});
 
-		leftBar.getBeveledBox()
-				.selectedProperty()
-				.addListener((observable, oldValue, newValue) -> {
-					leftBar.getFormat().setBeveled(newValue);
-					if (selectedFigure != null) {
-						selectedFigure.setFormat(leftBar.getFormat());
-					}
-					redrawCanvas();
-				});
+		leftBar.getChoiceShadow().getSelectionModel().selectedItemProperty()
+				.addListener((obs, oldVal, newVal) -> applyFormatChange(format -> format.setShadow(newVal)));
 
-		leftBar.getFirstFillColorPicker()
-				.valueProperty()
-				.addListener((observable, oldValue, newValue) -> {
-					leftBar.getFormat().setFirstFillColor(newValue);
-					if (selectedFigure != null) {
-						selectedFigure.setFormat(leftBar.getFormat());
-					}
-					redrawCanvas();
-				});
+		leftBar.getBeveledBox().selectedProperty()
+				.addListener((obs, oldVal, newVal) -> applyFormatChange(format -> format.setBeveled(newVal)));
+
+		leftBar.getFirstFillColorPicker().valueProperty()
+				.addListener((obs, oldVal, newVal) -> applyFormatChange(format -> format.setFirstFillColor(newVal)));
 
 		leftBar.getSecondFillColorPicker()
 				.valueProperty()
-				.addListener((observable, oldValue, newValue) -> {
-					leftBar.getFormat().setSecondFillColor(newValue);
-					if (selectedFigure != null) {
-						selectedFigure.setFormat(leftBar.getFormat());
-					}
-					redrawCanvas();
-				});
+				.addListener((obs, oldVal, newVal) -> applyFormatChange(format -> format.setSecondFillColor(newVal)));
+	}
 
+	private void applyFormatChange(Consumer<Format> formatUpdater) {
+		formatUpdater.accept(leftBar.getFormat());
+		if (selectedFigure != null)	selectedFigure.setFormat(leftBar.getFormat());
+		redrawCanvas();
+	}
 
-		leftBar.getCopyFmt().setOnAction(event -> {
-			if (selectedFigure == null) {
-				return;
-			}
-			copiedFormat = selectedFigure.getFormat();
-		});
-
-		setLeft(leftBar);
-		setCenter(canvas);
+	private Format getCurrentFormat() {
+		return new Format(
+				leftBar.getChoiceShadow().getValue(),
+				leftBar.getFirstFillColorPicker().getValue(),
+				leftBar.getSecondFillColorPicker().getValue(),
+				leftBar.getBeveledBox().isSelected()
+		);
 	}
 
 	void redrawCanvas() {
-		// Limpio el canvas
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
-		// Dibuja cada figura, le dice si está seleccionada para que cambie su borde
 		canvasState.figures().forEach(figure -> figure.draw(gc, figure == selectedFigure));
 	}
 
 	private DrawableFigure createFigure(Point startPoint, Point endPoint, Format format) {
-		if (leftBar.getRectangleButton().isSelected()) {
-			return new DrawableRectangle(startPoint, endPoint, format);
-		} else if (leftBar.getCircleButton().isSelected()) {
-			double circleRadius = Math.abs(endPoint.getX() - startPoint.getX());
-			return new DrawableCircle(startPoint, circleRadius, format);
-		} else if (leftBar.getSquareButton().isSelected()) {
-			double size = Math.abs(endPoint.getX() - startPoint.getX());
-			return new DrawableSquare(startPoint, size, format);
-		} else if (leftBar.getEllipseButton().isSelected()) {
-			Point centerPoint = new Point(
-					(startPoint.getX() + endPoint.getX()) / 2,
-					(startPoint.getY() + endPoint.getY()) / 2
+		if (leftBar.getRectangleButton().isSelected())	return new DrawableRectangle(startPoint, endPoint, format);
+		if (leftBar.getCircleButton().isSelected())	return new DrawableCircle(startPoint, Math.abs(endPoint.getX() - startPoint.getX()), format);
+		if (leftBar.getSquareButton().isSelected())	return new DrawableSquare(startPoint, Math.abs(endPoint.getX() - startPoint.getX()), format);
+		if (leftBar.getEllipseButton().isSelected()) {
+			return new DrawableEllipse(
+					new Point((startPoint.getX() + endPoint.getX()) / 2, (startPoint.getY() + endPoint.getY()) / 2),
+					Math.abs(endPoint.getX() - startPoint.getX()),
+					Math.abs(endPoint.getY() - startPoint.getY()),
+					format
 			);
-			double sMayorAxis = Math.abs(endPoint.getX() - startPoint.getX());
-			double sMinorAxis = Math.abs(endPoint.getY() - startPoint.getY());
-			return new DrawableEllipse(centerPoint, sMayorAxis, sMinorAxis, format);
-		} else {
-			return null; // Si no se selecciona ninguna figura, retornar null
 		}
+		return null;
 	}
-
 }
