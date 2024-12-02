@@ -7,20 +7,22 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public enum Shadow {
-    NONE(0, false){
+    NONE("Sin sombra",0, false){
         @Override
         public void drawShadow(GraphicsContext gc, DrawableFigure figure, Color color) {}
     },
-    SIMPLE(10, false),
-    COLORED(10, true),
-    SIMPLE_INVERSED(-10, false),
-    COLORED_INVERSED(-10, true);
+    SIMPLE("Simple", 10, false),
+    COLORED("Coloreada",10, true),
+    SIMPLE_INVERSED("Simple inversa",-10, false),
+    COLORED_INVERSED("Coloreada inversa",-10, true);
 
     private static final Color DEFAULT_COLOR = Color.GRAY;
     final int offset;
     final boolean isColored;
+    final String name;
 
-    Shadow(int offset, boolean isColored){
+    Shadow(String name, int offset, boolean isColored){
+        this.name = name;
         this.offset = offset;
         this.isColored = isColored;
     }
@@ -34,6 +36,6 @@ public enum Shadow {
 
     @Override
     public String toString(){
-        return name();
+        return name;
     }
 }

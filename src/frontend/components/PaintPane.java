@@ -73,7 +73,7 @@ public class PaintPane extends BorderPane {
 				return;
 			}
 
-			canvasState.add(newFigure);
+			canvasState.addFigure(newFigure);
 			startPoint = null;
 			redrawCanvas();
 		});
@@ -82,7 +82,7 @@ public class PaintPane extends BorderPane {
 			Point eventPoint = new Point(event.getX(), event.getY());
 
 			// Busca la primer figura que contenga al punto
-			String label = canvasState.stream()
+			String label = canvasState.intersectingFigures(eventPoint)
 					.filter(figure -> figure.contains(eventPoint))
 					.map(Figure::toString)
 					.findFirst()
@@ -100,10 +100,7 @@ public class PaintPane extends BorderPane {
 			Point eventPoint = new Point(event.getX(), event.getY());
 
 			// Busca la primer figura que contenga al punto
-			selectedFigure = canvasState.stream()
-					.filter(figure -> figure.contains(eventPoint))
-					.findFirst()
-					.orElse(null);
+			selectedFigure = canvasState.intersectingFigures(eventPoint).findFirst().orElse(null);
 
 			// Actualiza el status pane basado en la selección
 			String status = "Ninguna figura encontrada";
@@ -200,7 +197,7 @@ public class PaintPane extends BorderPane {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
 		// Dibuja cada figura, le dice si está seleccionada para que cambie su borde
-		canvasState.forEach(figure -> figure.draw(gc, figure == selectedFigure));
+		canvasState.figures().forEach(figure -> figure.draw(gc, figure == selectedFigure));
 	}
 
 	private DrawableFigure createFigure(Point startPoint, Point endPoint, Format format) {
