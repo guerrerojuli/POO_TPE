@@ -10,6 +10,8 @@ import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.BorderPane;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class PaintPane extends BorderPane {
@@ -154,32 +156,37 @@ public class PaintPane extends BorderPane {
 
     private void setupRightBarEvents() {
         rightBar.getRotationButton().setOnAction(event -> {
-            selectedFigure.rotate();
+			if (selectedFigure != null) selectedFigure.rotate();
             rightBar.getRotationButton().setSelected(false);
 			redrawCanvas();
         });
 
         rightBar.getFlipHButton().setOnAction(event -> {
-            selectedFigure.flipH();
+			if (selectedFigure != null) selectedFigure.flipH();
             rightBar.getFlipHButton().setSelected(false);
 			redrawCanvas();
         });
 
     	rightBar.getFlipVButton().setOnAction(event -> {
-            selectedFigure.flipV();
+			if (selectedFigure != null) selectedFigure.flipV();
             rightBar.getFlipVButton().setSelected(false);
 			redrawCanvas();
         });
 
         rightBar.getDuplicateButton().setOnAction(event -> {
-            /*canvasState.add(selectedFigure.duplicate());*/
+			if (selectedFigure != null) canvasState.addFigure(selectedFigure.duplicate());
             rightBar.getDuplicateButton().setSelected(false);
+			selectedFigure = null;
 			redrawCanvas();
         });
 
         rightBar.getDivideButton().setOnAction(event -> {
-            /*canvasState.addAll(selectedFigure.divide());*/
+			ArrayList<DrawableFigure> divided = selectedFigure.divide();
+			canvasState.addFigure(divided.get(0));
+			canvasState.addFigure(divided.get(1));
+			canvasState.deleteFigure(selectedFigure, canvasState.getCurrentLayer().getLayerId());
             rightBar.getDivideButton().setSelected(false);
+			selectedFigure = null;
 			redrawCanvas();
         });
     }

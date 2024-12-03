@@ -4,9 +4,11 @@ import backend.model.Figure;
 import frontend.format.Format;
 import javafx.scene.canvas.GraphicsContext;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface DrawableFigure extends Drawable, Figure{
+    double OFFSET = 20;
     void setFormat(Format format);
     Format getFormat();
 
@@ -16,6 +18,6 @@ public interface DrawableFigure extends Drawable, Figure{
     }
 
     DrawableFigure duplicate();
-    /*List<DrawableFigure> divide();*/
+    ArrayList<DrawableFigure> divide();
 
 }

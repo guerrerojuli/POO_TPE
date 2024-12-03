@@ -8,6 +8,8 @@ import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.ArcType;
 
+import java.util.ArrayList;
+
 public interface DrawableEllipseInterface extends DrawableFigure {
     Point getCenterPoint();
     double getDiagonalX();
@@ -40,5 +42,26 @@ public interface DrawableEllipseInterface extends DrawableFigure {
             gc.strokeArc(arcX, arcY, this.getDiagonalX(), this.getDiagonalY(), 225, 180, ArcType.OPEN);
             gc.setLineWidth(1);
         }
+    }
+
+    @Override
+    default DrawableFigure duplicate(){
+            return new DrawableEllipse(new Point(getCenterPoint().getX() + OFFSET,
+                    getCenterPoint().getY() + OFFSET), getDiagonalX(), getDiagonalY(), getFormat());
+        }
+
+    @Override
+    default ArrayList<DrawableFigure> divide(){
+        ArrayList<DrawableFigure> divided = new ArrayList<>();
+        double newDiagonalX = getDiagonalX() / 2;
+        double newDiagonalY = getDiagonalY() / 2;
+
+        divided.add(new DrawableEllipse(new Point(getCenterPoint().getX() - newDiagonalX / 2,
+                getCenterPoint().getY()), newDiagonalX, newDiagonalY, getFormat()));
+
+        divided.add(new DrawableEllipse(new Point(getCenterPoint().getX() + newDiagonalX / 2,
+                getCenterPoint().getY()), newDiagonalX, newDiagonalY, getFormat()));
+
+        return divided;
     }
 }

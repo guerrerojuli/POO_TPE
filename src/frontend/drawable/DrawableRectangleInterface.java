@@ -9,6 +9,8 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 
+import java.util.ArrayList;
+
 public interface DrawableRectangleInterface extends DrawableFigure{
     Point getTopLeft();
     Point getBottomRight();
@@ -48,5 +50,24 @@ public interface DrawableRectangleInterface extends DrawableFigure{
         }
     }
 
+    @Override
+    default DrawableFigure duplicate(){
+        return new DrawableRectangle(new Point(getTopLeft().getX() + OFFSET, getTopLeft().getY() + OFFSET),
+                new Point(getBottomRight().getX() + OFFSET, getBottomRight().getY() + OFFSET), getFormat());
+    }
 
+    @Override
+    default ArrayList<DrawableFigure> divide(){
+        ArrayList<DrawableFigure> divided = new ArrayList<>();
+        double base = getBottomRight().getX() - getTopLeft().getX();
+        double height = getBottomRight().getY() - getTopLeft().getY();
+
+        divided.add(new DrawableRectangle(new Point(getTopLeft().getX(), getTopLeft().getY() + height / 4),
+                new Point(getBottomRight().getX() - base / 2, getBottomRight().getY() - height / 4), getFormat()));
+
+        divided.add(new DrawableRectangle(new Point(getTopLeft().getX() + base / 2, getTopLeft().getY() + height / 4),
+                new Point(getBottomRight().getX(), getBottomRight().getY() - height / 4), getFormat()));
+
+        return divided;
+    }
 }
