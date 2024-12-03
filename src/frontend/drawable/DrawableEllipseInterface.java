@@ -53,15 +53,15 @@ public interface DrawableEllipseInterface extends DrawableFigure {
     @Override
     default ArrayList<DrawableFigure> divide(){
         ArrayList<DrawableFigure> divided = new ArrayList<>();
-        double newDiagonalX = getDiagonalX() / 2;
-        double newDiagonalY = getDiagonalY() / 2;
 
-        divided.add(new DrawableEllipse(new Point(getCenterPoint().getX() - newDiagonalX / 2,
-                getCenterPoint().getY()), newDiagonalX, newDiagonalY, getFormat()));
-
-        divided.add(new DrawableEllipse(new Point(getCenterPoint().getX() + newDiagonalX / 2,
-                getCenterPoint().getY()), newDiagonalX, newDiagonalY, getFormat()));
+        divided.add(dividend(- getDiagonalX() / 4));
+        divided.add(dividend( getDiagonalX() / 4));
 
         return divided;
+    }
+
+    private DrawableEllipse dividend(double offset){
+        return new DrawableEllipse(new Point(getCenterPoint().getX() + offset,
+                getCenterPoint().getY()), getDiagonalX() / 2, getDiagonalY() / 2, getFormat());
     }
 }
