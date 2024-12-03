@@ -7,8 +7,8 @@ import frontend.format.Format;
 public class DrawableEllipse extends Ellipse implements DrawableEllipseInterface {
     private Format format;
 
-    public DrawableEllipse(Point centerPoint, double sMayorAxis, double sMinorAxis, Format format) {
-        super(centerPoint, sMayorAxis, sMinorAxis);
+    public DrawableEllipse(Point centerPoint, double diagonalX, double diagonalY, Format format) {
+        super(centerPoint, diagonalX, diagonalY);
         this.format = format;
     }
 

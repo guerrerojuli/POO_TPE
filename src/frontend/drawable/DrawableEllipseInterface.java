@@ -10,13 +10,13 @@ import javafx.scene.shape.ArcType;
 
 public interface DrawableEllipseInterface extends DrawableFigure {
     Point getCenterPoint();
-    double getsMayorAxis();
-    double getsMinorAxis();
+    double getDiagonalX();
+    double getDiagonalY();
 
     @Override
     default void drawShape(GraphicsContext gc) {
-        gc.strokeOval(this.getCenterPoint().getX() - (this.getsMayorAxis() / 2), this.getCenterPoint().getY() - (this.getsMinorAxis() / 2), this.getsMayorAxis(), this.getsMinorAxis());
-        gc.fillOval(this.getCenterPoint().getX() - (this.getsMayorAxis() / 2), this.getCenterPoint().getY() - (this.getsMinorAxis() / 2), this.getsMayorAxis(), this.getsMinorAxis());
+        gc.strokeOval(this.getCenterPoint().getX() - (this.getDiagonalX() / 2), this.getCenterPoint().getY() - (this.getDiagonalY() / 2), this.getDiagonalX(), this.getDiagonalY());
+        gc.fillOval(this.getCenterPoint().getX() - (this.getDiagonalX() / 2), this.getCenterPoint().getY() - (this.getDiagonalY() / 2), this.getDiagonalX(), this.getDiagonalY());
     }
 
     @Override
@@ -31,13 +31,13 @@ public interface DrawableEllipseInterface extends DrawableFigure {
     @Override
     default void drawBezel(GraphicsContext gc) {
         if(getFormat().hasBeveled()){
-            double arcX = this.getCenterPoint().getX() - this.getsMayorAxis()/2;
-            double arcY = this.getCenterPoint().getY() - this.getsMinorAxis()/2;
+            double arcX = this.getCenterPoint().getX() - this.getDiagonalX()/2;
+            double arcY = this.getCenterPoint().getY() - this.getDiagonalY()/2;
             gc.setLineWidth(10);
             gc.setStroke(Color.LIGHTGRAY);
-            gc.strokeArc(arcX, arcY, this.getsMayorAxis(), this.getsMinorAxis(), 45, 180, ArcType.OPEN);
+            gc.strokeArc(arcX, arcY, this.getDiagonalX(), this.getDiagonalY(), 45, 180, ArcType.OPEN);
             gc.setStroke(Color.BLACK);
-            gc.strokeArc(arcX, arcY, this.getsMayorAxis(), this.getsMinorAxis(), 225, 180, ArcType.OPEN);
+            gc.strokeArc(arcX, arcY, this.getDiagonalX(), this.getDiagonalY(), 225, 180, ArcType.OPEN);
             gc.setLineWidth(1);
         }
     }

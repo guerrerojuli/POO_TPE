@@ -14,9 +14,8 @@ public interface DrawableFigure extends Drawable, Figure{
     default void drawShadow(GraphicsContext gc){
         getFormat().getShadow().drawShadow(gc, this, getFormat().getFirstFillColor());
     }
-   /* void flipH();
-    void flipV();
+
     DrawableFigure duplicate();
-    List<DrawableFigure> divide();*/
+    /*List<DrawableFigure> divide();*/
 
 }

@@ -37,29 +37,28 @@ public class Rectangle implements Figure {
 
     @Override
     public void rotate() {
-       /* double centerX = (topLeft.getX() + bottomRight.getX()) / 2;
-        double centerY = (topLeft.getY() + bottomRight.getY()) / 2;
 
-        double x1 = topLeft.getX() - centerX;
-        double y1 = topLeft.getY() - centerY;
-        double x2 = bottomRight.getX() - centerX;
-        double y2 = bottomRight.getY() - centerY;
-
-        double newX1 = -y1;
-        double newY1 = x1;
-        double newX2 = -y2;
-        double newY2 = x2;
-
-        topLeft = new Point(newX1 + centerX, newY1 + centerY);
-        bottomRight = new Point(newX2 + centerX, newY2 + centerY);*/
-
-/*        double distX = bottomRight.getX() - topLeft.getX();
+        double distX = bottomRight.getX() - topLeft.getX();
         double distY = bottomRight.getY() - topLeft.getY();
 
         double resp = (distX - distY) / 2;
 
-        topLeft = new Point(topLeft.getX() + distX, topLeft.getY() - distY);
-        bottomRight = new Point(bottomRight.getX() - distX, bottomRight.getY() + distY);*/
+        topLeft = new Point(topLeft.getX() + resp, topLeft.getY() - resp);
+        bottomRight = new Point(bottomRight.getX() - resp, bottomRight.getY() + resp);
 
+    }
+
+    @Override
+    public void flipH() {
+        double incX = bottomRight.getX() - topLeft.getX();
+        bottomRight = new Point(bottomRight.getX() + incX, bottomRight.getY());
+        topLeft = new Point(topLeft.getX() + incX, topLeft.getY());
+    }
+
+    @Override
+    public void flipV() {
+        double incY = bottomRight.getY() - topLeft.getY();
+        bottomRight = new Point(bottomRight.getX(), bottomRight.getY() + incY);
+        topLeft = new Point(topLeft.getX(), topLeft.getY() + incY);
     }
 }

@@ -156,26 +156,31 @@ public class PaintPane extends BorderPane {
         rightBar.getRotationButton().setOnAction(event -> {
             selectedFigure.rotate();
             rightBar.getRotationButton().setSelected(false);
+			redrawCanvas();
         });
 
         rightBar.getFlipHButton().setOnAction(event -> {
-            /*selectedFigure.flipH();*/
+            selectedFigure.flipH();
             rightBar.getFlipHButton().setSelected(false);
+			redrawCanvas();
         });
 
     	rightBar.getFlipVButton().setOnAction(event -> {
-            /*selectedFigure.flipV();*/
+            selectedFigure.flipV();
             rightBar.getFlipVButton().setSelected(false);
+			redrawCanvas();
         });
 
         rightBar.getDuplicateButton().setOnAction(event -> {
             /*canvasState.add(selectedFigure.duplicate());*/
             rightBar.getDuplicateButton().setSelected(false);
+			redrawCanvas();
         });
 
         rightBar.getDivideButton().setOnAction(event -> {
             /*canvasState.addAll(selectedFigure.divide());*/
             rightBar.getDivideButton().setSelected(false);
+			redrawCanvas();
         });
     }
 
