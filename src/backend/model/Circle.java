@@ -9,17 +9,17 @@ public class Circle extends Ellipse{
     // Se sobreescribe para usar una formula más precisa
     @Override
     public boolean contains(Point p) {
-        return Math.sqrt(Math.pow(this.centerPoint.getX() - p.getX(), 2) +
-                Math.pow(this.centerPoint.getY() - p.getY(), 2)) < this.getRadius();
+        return Math.sqrt(Math.pow(getCenterPoint().getX() - p.getX(), 2) +
+                Math.pow(getCenterPoint().getY() - p.getY(), 2)) < this.getRadius();
     }
 
     @Override
     public String toString() {
-        return String.format("Círculo [Centro: %s, Radio: %.2f]", centerPoint, diagonalX);
+        return String.format("Círculo [Centro: %s, Radio: %.2f]", getCenterPoint(), getDiagonalX());
     }
 
     public double getRadius() {
-        return diagonalX/2;
+        return getDiagonalX()/2;
     }
 
 }

@@ -2,8 +2,8 @@ package backend.model;
 
 public class Ellipse implements Figure {
 
-    protected Point centerPoint;
-    protected double diagonalX, diagonalY;
+    private Point centerPoint;
+    private double diagonalX, diagonalY;
 
     public Ellipse(Point centerPoint, double diagonalX, double diagonalY) {
         this.centerPoint = centerPoint;
