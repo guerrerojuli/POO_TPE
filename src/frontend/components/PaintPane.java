@@ -181,13 +181,15 @@ public class PaintPane extends BorderPane {
         });
 
         rightBar.getDivideButton().setOnAction(event -> {
-			ArrayList<DrawableFigure> divided = selectedFigure.divide();
-			canvasState.addFigure(divided.get(0));
-			canvasState.addFigure(divided.get(1));
-			canvasState.deleteFigure(selectedFigure, canvasState.getCurrentLayer().getLayerId());
-            rightBar.getDivideButton().setSelected(false);
-			selectedFigure = null;
-			redrawCanvas();
+			if (selectedFigure != null){
+				ArrayList<DrawableFigure> divided = selectedFigure.divide();
+				canvasState.addFigure(divided.get(0));
+				canvasState.addFigure(divided.get(1));
+				canvasState.deleteFigure(selectedFigure, canvasState.getCurrentLayer().getLayerId());
+				rightBar.getDivideButton().setSelected(false);
+				selectedFigure = null;
+				redrawCanvas();
+			}
         });
     }
 
