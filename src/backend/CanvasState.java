@@ -92,7 +92,4 @@ public class CanvasState<T extends Figure> extends ArrayList<Layer<T>> {
                 .filter(f -> f.contains(location) );
     }
 
-    public Optional<T> intersectsAnyFigure(Point location) {
-        return this.intersectingFigures(location).findAny();
-    }
 }
