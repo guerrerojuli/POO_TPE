@@ -2,6 +2,7 @@ package frontend.components;
 
 import backend.model.Layer;
 import frontend.drawable.DrawableFigure;
+import frontend.drawable.FormatedFigure;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -22,8 +23,8 @@ public class TopBar extends HBox {
     private final int OFFSETS_VALUE = 5;
 
     private final Label layerLabel = new Label("Capas");
-    private final ObservableList<Layer<DrawableFigure>> layers = FXCollections.observableArrayList();
-    private final ChoiceBox<Layer<DrawableFigure>> layerOptions = new ChoiceBox<>(layers);
+    private final ObservableList<Layer<FormatedFigure>> layers = FXCollections.observableArrayList();
+    private final ChoiceBox<Layer<FormatedFigure>> layerOptions = new ChoiceBox<>(layers);
     private final RadioButton showButton = new RadioButton("Mostrar");
     private final RadioButton hideButton = new RadioButton("Ocultar");
     private final ToggleButton addLayerButton = new ToggleButton("Agregar Capa");
@@ -70,11 +71,11 @@ public class TopBar extends HBox {
         return showButton;
     }
 
-    public ChoiceBox<Layer<DrawableFigure>> getLayerOptions() {
+    public ChoiceBox<Layer<FormatedFigure>> getLayerOptions() {
         return layerOptions;
     }
 
-    public ObservableList<Layer<DrawableFigure>> getLayers() {
+    public ObservableList<Layer<FormatedFigure>> getLayers() {
         return layers;
     }
 }

@@ -2,23 +2,32 @@ package frontend.drawable;
 
 import backend.model.Ellipse;
 import backend.model.Point;
-import frontend.format.Format;
+
+import java.util.ArrayList;
 
 public class DrawableEllipse extends Ellipse implements DrawableEllipseInterface {
-    private Format format;
-
-    public DrawableEllipse(Point centerPoint, double diagonalX, double diagonalY, Format format) {
+    public DrawableEllipse(Point centerPoint, double diagonalX, double diagonalY) {
         super(centerPoint, diagonalX, diagonalY);
-        this.format = format;
+    }
+
+    public DrawableFigure duplicate(){
+        return new DrawableEllipse(new Point(getCenterPoint().getX() + OFFSET,
+                getCenterPoint().getY() + OFFSET), getDiagonalX(), getDiagonalY());
     }
 
     @Override
-    public Format getFormat() {
-        return format;
+    public ArrayList<DrawableFigure> divide(){
+        ArrayList<DrawableFigure> divided = new ArrayList<>();
+
+        divided.add(dividend(- getDiagonalX() / 4));
+        divided.add(dividend( getDiagonalX() / 4));
+
+        return divided;
     }
 
-    @Override
-    public void setFormat(Format format) {
-        this.format = format;
+
+    private DrawableEllipse dividend(double offset){
+        return new DrawableEllipse(new Point(getCenterPoint().getX() + offset,
+                getCenterPoint().getY()), getDiagonalX() / 2, getDiagonalY() / 2);
     }
 }

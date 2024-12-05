@@ -1,5 +1,7 @@
 package frontend.components;
 
+import backend.model.Point;
+import frontend.drawable.*;
 import frontend.format.Format;
 import frontend.format.Shadow;
 import javafx.collections.FXCollections;
@@ -8,6 +10,10 @@ import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiFunction;
 
 public class LeftBar extends VBox {
     // Dimensiones
@@ -18,12 +24,15 @@ public class LeftBar extends VBox {
     private static final String VBOX_STYLE = "-fx-background-color: #999";
 
     // Botones Barra Izquierda
+    private final ToggleGroup tools = new ToggleGroup();
     private final ToggleButton selectionButton = createToggleButton("Seleccionar");
     private final ToggleButton rectangleButton = createToggleButton("Rectángulo");
     private final ToggleButton circleButton = createToggleButton("Círculo");
     private final ToggleButton squareButton = createToggleButton("Cuadrado");
     private final ToggleButton ellipseButton = createToggleButton("Elipse");
     private final ToggleButton deleteButton = createToggleButton("Borrar");
+
+    private final Map<Toggle, BiFunction<Point, Point, FormatedFigure>> buttonActions = new HashMap<>();
 
     // Formato
     private final Label formatLabel = new Label("Formato");
@@ -53,13 +62,22 @@ public class LeftBar extends VBox {
 
     private void setupLayout() {
         // Agrupar herramientas en un Toggle Group
-        ToggleGroup tools = new ToggleGroup();
         ToggleButton[] toolsArr = {
                 selectionButton, rectangleButton, circleButton, squareButton, ellipseButton, deleteButton
         };
         for (ToggleButton tool : toolsArr) {
             tool.setToggleGroup(tools);
         }
+
+        buttonActions.put(rectangleButton, (startPoint, endPoint) -> new FormatedFigure(new DrawableRectangle(startPoint, endPoint), format));
+        buttonActions.put(circleButton, (startPoint, endPoint) -> new FormatedFigure(new DrawableCircle(startPoint, Math.abs(endPoint.getX() - startPoint.getX())), format));
+        buttonActions.put(squareButton, (startPoint, endPoint) -> new FormatedFigure(new DrawableSquare(startPoint, Math.abs(endPoint.getX() - startPoint.getX())), format));
+        buttonActions.put(ellipseButton, (startPoint, endPoint) ->new FormatedFigure(new DrawableEllipse(
+                new Point((startPoint.getX() + endPoint.getX()) / 2, (startPoint.getY() + endPoint.getY()) / 2),
+                Math.abs(endPoint.getX() - startPoint.getX()),
+                Math.abs(endPoint.getY() - startPoint.getY())),
+                format
+        ));
 
         // Añadir elementos al panel
         this.getChildren().addAll(toolsArr);
@@ -95,18 +113,6 @@ public class LeftBar extends VBox {
     public ToggleButton getDeleteButton() {
         return deleteButton;
     }
-    public ToggleButton getEllipseButton() {
-        return ellipseButton;
-    }
-    public ToggleButton getSquareButton() {
-        return squareButton;
-    }
-    public ToggleButton getCircleButton() {
-        return circleButton;
-    }
-    public ToggleButton getRectangleButton() {
-        return rectangleButton;
-    }
     public ToggleButton getSelectionButton() {
         return selectionButton;
     }
@@ -114,4 +120,9 @@ public class LeftBar extends VBox {
         return copyFmt;
     }
     public Format getFormat() { return format; }
+    public FormatedFigure createFigure(Point startPoint, Point endPoint) {
+        BiFunction<Point, Point, FormatedFigure> action = buttonActions.get(tools.getSelectedToggle());
+        if (action == null) return null;
+        return action.apply(startPoint, endPoint);
+    }
 }

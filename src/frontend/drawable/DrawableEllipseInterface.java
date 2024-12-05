@@ -1,6 +1,7 @@
 package frontend.drawable;
 
 import backend.model.Point;
+import frontend.format.Format;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -16,52 +17,30 @@ public interface DrawableEllipseInterface extends DrawableFigure {
     double getDiagonalY();
 
     @Override
-    default void drawShape(GraphicsContext gc) {
+    default void draw(GraphicsContext gc) {
         gc.strokeOval(this.getCenterPoint().getX() - (this.getDiagonalX() / 2), this.getCenterPoint().getY() - (this.getDiagonalY() / 2), this.getDiagonalX(), this.getDiagonalY());
         gc.fillOval(this.getCenterPoint().getX() - (this.getDiagonalX() / 2), this.getCenterPoint().getY() - (this.getDiagonalY() / 2), this.getDiagonalX(), this.getDiagonalY());
     }
 
     @Override
-    default void drawGradient(GraphicsContext gc) {
+    default void drawGradient(GraphicsContext gc, Format format) {
         RadialGradient radialGradient = new RadialGradient(0, 0, 0.5, 0.5, 0.5, true,
                 CycleMethod.NO_CYCLE,
-                new Stop(0, getFormat().getFirstFillColor()),
-                new Stop(1, getFormat().getSecondFillColor()));
+                new Stop(0, format.getFirstFillColor()),
+                new Stop(1, format.getSecondFillColor()));
         gc.setFill(radialGradient);
     }
 
     @Override
     default void drawBezel(GraphicsContext gc) {
-        if(getFormat().hasBeveled()){
-            double arcX = this.getCenterPoint().getX() - this.getDiagonalX()/2;
-            double arcY = this.getCenterPoint().getY() - this.getDiagonalY()/2;
-            gc.setLineWidth(10);
-            gc.setStroke(Color.LIGHTGRAY);
-            gc.strokeArc(arcX, arcY, this.getDiagonalX(), this.getDiagonalY(), 45, 180, ArcType.OPEN);
-            gc.setStroke(Color.BLACK);
-            gc.strokeArc(arcX, arcY, this.getDiagonalX(), this.getDiagonalY(), 225, 180, ArcType.OPEN);
-            gc.setLineWidth(1);
-        }
+        double arcX = this.getCenterPoint().getX() - this.getDiagonalX()/2;
+        double arcY = this.getCenterPoint().getY() - this.getDiagonalY()/2;
+        gc.setLineWidth(10);
+        gc.setStroke(Color.LIGHTGRAY);
+        gc.strokeArc(arcX, arcY, this.getDiagonalX(), this.getDiagonalY(), 45, 180, ArcType.OPEN);
+        gc.setStroke(Color.BLACK);
+        gc.strokeArc(arcX, arcY, this.getDiagonalX(), this.getDiagonalY(), 225, 180, ArcType.OPEN);
+        gc.setLineWidth(1);
     }
 
-    @Override
-    default DrawableFigure duplicate(){
-            return new DrawableEllipse(new Point(getCenterPoint().getX() + OFFSET,
-                    getCenterPoint().getY() + OFFSET), getDiagonalX(), getDiagonalY(), getFormat().getCopy());
-        }
-
-    @Override
-    default ArrayList<DrawableFigure> divide(){
-        ArrayList<DrawableFigure> divided = new ArrayList<>();
-
-        divided.add(dividend(- getDiagonalX() / 4));
-        divided.add(dividend( getDiagonalX() / 4));
-
-        return divided;
-    }
-
-    private DrawableEllipse dividend(double offset){
-        return new DrawableEllipse(new Point(getCenterPoint().getX() + offset,
-                getCenterPoint().getY()), getDiagonalX() / 2, getDiagonalY() / 2, getFormat().getCopy());
-    }
 }

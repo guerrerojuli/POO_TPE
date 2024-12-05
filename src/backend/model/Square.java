@@ -6,6 +6,10 @@ public class Square extends Rectangle {
         super(topLeft, new Point(topLeft.getX() + size, topLeft.getY() + size));
     }
 
+    public double getSize() {
+        return getBottomRight().getX() - getTopLeft().getX();
+    }
+
     @Override
     public String toString() {
         return String.format("Cuadrado [ %s , %s ]", getTopLeft(), getBottomRight());

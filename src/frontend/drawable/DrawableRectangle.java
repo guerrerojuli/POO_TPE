@@ -2,23 +2,32 @@ package frontend.drawable;
 
 import backend.model.Point;
 import backend.model.Rectangle;
-import frontend.format.Format;
+
+import java.util.ArrayList;
 
 public class DrawableRectangle extends Rectangle implements DrawableRectangleInterface {
-    private Format format;
-
-    public DrawableRectangle(Point topLeft, Point bottomRight, Format format) {
+    public DrawableRectangle(Point topLeft, Point bottomRight) {
         super(topLeft, bottomRight);
-        this.format = format;
     }
 
     @Override
-    public Format getFormat() {
-        return format;
+    public DrawableFigure duplicate(){
+        return new DrawableRectangle(new Point(getTopLeft().getX() + OFFSET, getTopLeft().getY() + OFFSET),
+                new Point(getBottomRight().getX() + OFFSET, getBottomRight().getY() + OFFSET));
     }
 
     @Override
-    public void setFormat(Format format) {
-        this.format = format;
+    public ArrayList<DrawableFigure> divide(){
+        ArrayList<DrawableFigure> divided = new ArrayList<>();
+        double base = getBottomRight().getX() - getTopLeft().getX();
+        double height = getBottomRight().getY() - getTopLeft().getY();
+
+        divided.add(new DrawableRectangle(new Point(getTopLeft().getX(), getTopLeft().getY() + height / 4),
+                new Point(getBottomRight().getX() - base / 2, getBottomRight().getY() - height / 4)));
+
+        divided.add(new DrawableRectangle(new Point(getTopLeft().getX() + base / 2, getTopLeft().getY() + height / 4),
+                new Point(getBottomRight().getX(), getBottomRight().getY() - height / 4)));
+
+        return divided;
     }
 }

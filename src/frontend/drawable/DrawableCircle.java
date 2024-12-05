@@ -2,23 +2,31 @@ package frontend.drawable;
 
 import backend.model.Circle;
 import backend.model.Point;
-import frontend.format.Format;
+
+import java.util.ArrayList;
 
 public class DrawableCircle extends Circle implements DrawableEllipseInterface {
-    private Format format;
-
-    public DrawableCircle(Point centerPoint, double radius, Format format) {
+    public DrawableCircle(Point centerPoint, double radius) {
         super(centerPoint, radius);
-        this.format = format;
+    }
+
+    public DrawableFigure duplicate(){
+        return new DrawableCircle(new Point(getCenterPoint().getX() + OFFSET,
+                getCenterPoint().getY() + OFFSET), getRadius());
     }
 
     @Override
-    public Format getFormat() {
-        return format;
+    public ArrayList<DrawableFigure> divide(){
+        ArrayList<DrawableFigure> divided = new ArrayList<>();
+
+        divided.add(dividend(- getDiagonalX() / 4));
+        divided.add(dividend( getDiagonalX() / 4));
+
+        return divided;
     }
 
-    @Override
-    public void setFormat(Format format) {
-        this.format = format;
+    private DrawableCircle dividend(double offset){
+        return new DrawableCircle(new Point(getCenterPoint().getX() + offset,
+                getCenterPoint().getY()), getRadius() / 2);
     }
 }

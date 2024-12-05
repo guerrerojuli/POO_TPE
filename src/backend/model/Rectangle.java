@@ -17,8 +17,8 @@ public class Rectangle implements Figure {
 
     @Override
     public boolean contains(Point p) {
-       return p.getX() > this.getTopLeft().getX() && p.getX() < this.getBottomRight().getX() &&
-               p.getY() > this.getTopLeft().getY() && p.getY() < this.getBottomRight().getY();
+       return p.getX() > getTopLeft().getX() && p.getX() < getBottomRight().getX() &&
+               p.getY() > getTopLeft().getY() && p.getY() < getBottomRight().getY();
     }
 
     @Override

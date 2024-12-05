@@ -14,22 +14,8 @@ public interface DrawableFigure extends Figure {
     DrawableFigure duplicate();
     ArrayList<DrawableFigure> divide();
 
-    default void draw(GraphicsContext gc, boolean isSelected){
-        gc.setStroke(Color.TRANSPARENT);
-        drawShadow(gc);
-        drawGradient(gc);
-        drawBezel(gc);
-        gc.setStroke(isSelected ? Color.RED : Color.BLACK);
-        drawShape(gc);
-    }
-
-    void drawShape(GraphicsContext gc);
-    void drawGradient(GraphicsContext gc);
+    void draw(GraphicsContext gc);
+    void drawGradient(GraphicsContext gc, Format format);
     void drawBezel(GraphicsContext gc);
-    default void drawShadow(GraphicsContext gc){
-        getFormat().getShadow().drawShadow(gc, this, getFormat().getFirstFillColor());
-    }
 
-    void setFormat(Format format);
-    Format getFormat();
 }

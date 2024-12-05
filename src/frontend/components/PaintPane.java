@@ -11,7 +11,6 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.BorderPane;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
 
 public class PaintPane extends BorderPane {
@@ -27,12 +26,12 @@ public class PaintPane extends BorderPane {
 	private final Canvas canvas;
 	private final GraphicsContext gc;
 
-	private final CanvasState<DrawableFigure> canvasState;
-	private DrawableFigure selectedFigure;
+	private final CanvasState<FormatedFigure> canvasState;
+	private FormatedFigure selectedFigure;
 	private Point startPoint;
 	private Format copiedFormat;
 
-	public PaintPane(CanvasState<DrawableFigure> canvasState, StatusPane statusPane) {
+	public PaintPane(CanvasState<FormatedFigure> canvasState, StatusPane statusPane) {
 		this.canvasState = canvasState;
 		this.leftBar = new LeftBar(VBOX_SPACING);
         this.rightBar = new RightBar(VBOX_SPACING);
@@ -62,7 +61,7 @@ public class PaintPane extends BorderPane {
 			Point endPoint = new Point(event.getX(), event.getY());
 			if (endPoint.getX() < startPoint.getX() || endPoint.getY() < startPoint.getY()) 	return;
 
-			DrawableFigure newFigure = createFigure(startPoint, endPoint, getCurrentFormat());
+			FormatedFigure newFigure = leftBar.createFigure(startPoint, endPoint);
 
 			if (newFigure != null) {
 				canvasState.addFigure(newFigure);
@@ -182,7 +181,7 @@ public class PaintPane extends BorderPane {
 
         rightBar.getDivideButton().setOnAction(event -> {
 			if (selectedFigure != null){
-				ArrayList<DrawableFigure> divided = selectedFigure.divide();
+				ArrayList<FormatedFigure> divided = selectedFigure.divide();
 				canvasState.addFigure(divided.get(0));
 				canvasState.addFigure(divided.get(1));
 				canvasState.deleteFigure(selectedFigure, canvasState.getCurrentLayer().getLayerId());
@@ -206,7 +205,6 @@ public class PaintPane extends BorderPane {
 		bindButtonToRedraw(topBar.getHideButton(), () -> {
 			leftBar.getSelectionButton().setSelected(false);
 			setCurrentLayerMode(false);
-			redrawCanvas();
 		});
 		bindButtonToLayerAction(topBar.getAddLayerButton(), canvasState::addLayer);
 		bindButtonToLayerActionAndRedraw(topBar.getDeleteLayerButton(), canvasState::deleteLayer);
@@ -230,33 +228,9 @@ public class PaintPane extends BorderPane {
 		redrawCanvas();
 	}
 
-	private Format getCurrentFormat() {
-		return new Format(
-				leftBar.getChoiceShadow().getValue(),
-				leftBar.getFirstFillColorPicker().getValue(),
-				leftBar.getSecondFillColorPicker().getValue(),
-				leftBar.getBeveledBox().isSelected()
-		);
-	}
-
 	private void redrawCanvas() {
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		canvasState.figures().forEach(figure -> figure.draw(gc, figure == selectedFigure));
-	}
-
-	private DrawableFigure createFigure(Point startPoint, Point endPoint, Format format) {
-		if (leftBar.getRectangleButton().isSelected())	return new DrawableRectangle(startPoint, endPoint, format);
-		if (leftBar.getCircleButton().isSelected())	return new DrawableCircle(startPoint, Math.abs(endPoint.getX() - startPoint.getX()), format);
-		if (leftBar.getSquareButton().isSelected())	return new DrawableSquare(startPoint, Math.abs(endPoint.getX() - startPoint.getX()), format);
-		if (leftBar.getEllipseButton().isSelected()) {
-			return new DrawableEllipse(
-					new Point((startPoint.getX() + endPoint.getX()) / 2, (startPoint.getY() + endPoint.getY()) / 2),
-					Math.abs(endPoint.getX() - startPoint.getX()),
-					Math.abs(endPoint.getY() - startPoint.getY()),
-					format
-			);
-		}
-		return null;
 	}
 
 	private void setCurrentLayerMode(){
