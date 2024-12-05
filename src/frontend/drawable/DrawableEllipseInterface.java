@@ -47,7 +47,7 @@ public interface DrawableEllipseInterface extends DrawableFigure {
     @Override
     default DrawableFigure duplicate(){
             return new DrawableEllipse(new Point(getCenterPoint().getX() + OFFSET,
-                    getCenterPoint().getY() + OFFSET), getDiagonalX(), getDiagonalY(), getFormat());
+                    getCenterPoint().getY() + OFFSET), getDiagonalX(), getDiagonalY(), getFormat().getCopy());
         }
 
     @Override
@@ -62,6 +62,6 @@ public interface DrawableEllipseInterface extends DrawableFigure {
 
     private DrawableEllipse dividend(double offset){
         return new DrawableEllipse(new Point(getCenterPoint().getX() + offset,
-                getCenterPoint().getY()), getDiagonalX() / 2, getDiagonalY() / 2, getFormat());
+                getCenterPoint().getY()), getDiagonalX() / 2, getDiagonalY() / 2, getFormat().getCopy());
     }
 }
