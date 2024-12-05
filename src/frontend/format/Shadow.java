@@ -1,7 +1,5 @@
 package frontend.format;
 
-
-import frontend.drawable.Drawable;
 import frontend.drawable.DrawableFigure;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -17,9 +15,9 @@ public enum Shadow {
     COLORED_INVERSED("Coloreada inversa",-10, true);
 
     private static final Color DEFAULT_COLOR = Color.GRAY;
-    final int offset;
-    final boolean isColored;
-    final String name;
+    private final int offset;
+    private final boolean isColored;
+    private final String name;
 
     Shadow(String name, int offset, boolean isColored){
         this.name = name;
