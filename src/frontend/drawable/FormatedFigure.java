@@ -51,10 +51,6 @@ public class FormatedFigure implements Figure {
         return result;
     }
 
-    public DrawableFigure getFigure() {
-        return figure;
-    }
-
     @Override
     public boolean contains(Point p) {
         return figure.contains(p);

@@ -118,11 +118,11 @@ public class PaintPane extends BorderPane {
 
 	private void setupLeftBarEvents() {
 		leftBar.getDeleteButton().setOnAction(event -> {
-			if (selectedFigure != null) {
-				canvasState.deleteFigure(selectedFigure, canvasState.getCurrentLayer().getLayerId());
-				selectedFigure = null;
-				redrawCanvas();
-			}
+			leftBar.getDeleteButton().setSelected(false);
+			if (selectedFigure == null)	return;
+			canvasState.deleteFigure(selectedFigure, canvasState.getCurrentLayer().getLayerId());
+			selectedFigure = null;
+			redrawCanvas();
 		});
 
 		leftBar.getCopyFmt().setOnAction(event -> {
@@ -155,40 +155,39 @@ public class PaintPane extends BorderPane {
 
     private void setupRightBarEvents() {
         rightBar.getRotationButton().setOnAction(event -> {
+			rightBar.getRotationButton().setSelected(false);
 			if (selectedFigure != null) selectedFigure.rotate();
-            rightBar.getRotationButton().setSelected(false);
 			redrawCanvas();
         });
 
         rightBar.getFlipHButton().setOnAction(event -> {
+			rightBar.getFlipHButton().setSelected(false);
 			if (selectedFigure != null) selectedFigure.flipH();
-            rightBar.getFlipHButton().setSelected(false);
 			redrawCanvas();
         });
 
     	rightBar.getFlipVButton().setOnAction(event -> {
+			rightBar.getFlipVButton().setSelected(false);
 			if (selectedFigure != null) selectedFigure.flipV();
-            rightBar.getFlipVButton().setSelected(false);
 			redrawCanvas();
         });
 
         rightBar.getDuplicateButton().setOnAction(event -> {
+			rightBar.getDuplicateButton().setSelected(false);
 			if (selectedFigure != null) canvasState.addFigure(selectedFigure.duplicate());
-            rightBar.getDuplicateButton().setSelected(false);
 			selectedFigure = null;
 			redrawCanvas();
         });
 
         rightBar.getDivideButton().setOnAction(event -> {
-			if (selectedFigure != null){
-				ArrayList<FormatedFigure> divided = selectedFigure.divide();
-				canvasState.addFigure(divided.get(0));
-				canvasState.addFigure(divided.get(1));
-				canvasState.deleteFigure(selectedFigure, canvasState.getCurrentLayer().getLayerId());
-				rightBar.getDivideButton().setSelected(false);
-				selectedFigure = null;
-				redrawCanvas();
-			}
+			rightBar.getDivideButton().setSelected(false);
+			if (selectedFigure == null)	return;
+			ArrayList<FormatedFigure> divided = selectedFigure.divide();
+			canvasState.addFigure(divided.get(0));
+			canvasState.addFigure(divided.get(1));
+			canvasState.deleteFigure(selectedFigure, canvasState.getCurrentLayer().getLayerId());
+			selectedFigure = null;
+			redrawCanvas();
         });
     }
 

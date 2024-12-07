@@ -9,8 +9,6 @@ import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.ArcType;
 
-import java.util.ArrayList;
-
 public interface DrawableEllipseInterface extends DrawableFigure {
     Point getCenterPoint();
     double getDiagonalX();

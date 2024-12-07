@@ -1,7 +1,6 @@
 package frontend.components;
 
 import backend.model.Layer;
-import frontend.drawable.DrawableFigure;
 import frontend.drawable.FormatedFigure;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

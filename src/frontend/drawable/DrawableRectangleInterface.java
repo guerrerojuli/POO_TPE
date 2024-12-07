@@ -1,15 +1,12 @@
 package frontend.drawable;
 
 import backend.model.Point;
-import backend.model.Rectangle;
 import frontend.format.Format;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
-
-import java.util.ArrayList;
 
 public interface DrawableRectangleInterface extends DrawableFigure{
     Point getTopLeft();
