@@ -1,0 +1,274 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class AppLauncher {
+  + AppLauncher(): 
+  + main(String[]): void
+  + start(Stage): void
+}
+class AppMenuBar {
+  + AppMenuBar(): 
+}
+class CanvasState<T> {
+  + CanvasState(): 
+  + deleteFigure(T): void
+  + intersectingFigures(Point): Stream<T>
+  + addFigure(T): void
+  + deleteLayer(): void
+  + figures(): Iterable<T>
+  + moveToBack(T): void
+  + addLayer(): void
+  + deleteFigure(T, int): void
+  + bringToFront(T): void
+   currentLayer: Layer<T>
+   layers: List<Layer<T>>
+}
+class Circle {
+  + Circle(Point, double): 
+  + contains(Point): boolean
+  + toString(): String
+   radius: double
+}
+class DrawableCircle {
+  + DrawableCircle(Point, double): 
+  + duplicate(): DrawableFigure
+  - dividend(double): DrawableCircle
+  + divide(): ArrayList<DrawableFigure>
+}
+class DrawableEllipse {
+  + DrawableEllipse(Point, double, double): 
+  - dividend(double): DrawableEllipse
+  + divide(): ArrayList<DrawableFigure>
+  + duplicate(): DrawableFigure
+}
+interface DrawableEllipseInterface << interface >> {
+  + draw(GraphicsContext): void
+  + drawGradient(GraphicsContext, Format): void
+  + drawBezel(GraphicsContext): void
+   diagonalX: double
+   centerPoint: Point
+   diagonalY: double
+}
+interface DrawableFigure << interface >> {
+  + draw(GraphicsContext): void
+  + drawBezel(GraphicsContext): void
+  + duplicate(): DrawableFigure
+  + drawGradient(GraphicsContext, Format): void
+  + divide(): ArrayList<DrawableFigure>
+}
+class DrawableRectangle {
+  + DrawableRectangle(Point, Point): 
+  + duplicate(): DrawableFigure
+  + divide(): ArrayList<DrawableFigure>
+}
+interface DrawableRectangleInterface << interface >> {
+  + drawBezel(GraphicsContext): void
+  + draw(GraphicsContext): void
+  + drawGradient(GraphicsContext, Format): void
+   topLeft: Point
+   bottomRight: Point
+}
+class DrawableSquare {
+  + DrawableSquare(Point, double): 
+  + duplicate(): DrawableFigure
+  + divide(): ArrayList<DrawableFigure>
+}
+class Ellipse {
+  + Ellipse(Point, double, double): 
+  - centerPoint: Point
+  - diagonalX: double
+  - diagonalY: double
+  + rotate(): void
+  + flipV(): void
+  + toString(): String
+  + move(double, double): void
+  + contains(Point): boolean
+  + flipH(): void
+   diagonalX: double
+   centerPoint: Point
+   diagonalY: double
+}
+interface Figure << interface >> {
+  + contains(Point): boolean
+  + rotate(): void
+  + flipH(): void
+  + flipV(): void
+}
+class Format {
+  + Format(Shadow, Color, Color, boolean): 
+  - firstFillColor: Color
+  - secondFillColor: Color
+  - shadow: Shadow
+  + hasBeveled(): boolean
+   beveled: boolean
+   secondFillColor: Color
+   firstFillColor: Color
+   shadow: Shadow
+   copy: Format
+}
+class FormatedFigure {
+  + FormatedFigure(DrawableFigure, Format): 
+  - format: Format
+  + draw(GraphicsContext, boolean): void
+  + rotate(): void
+  - drawShadow(GraphicsContext): void
+  + divide(): ArrayList<FormatedFigure>
+  + move(double, double): void
+  + toString(): String
+  + contains(Point): boolean
+  + flipH(): void
+  + duplicate(): FormatedFigure
+  + flipV(): void
+   format: Format
+}
+class Layer<T> {
+  + Layer(): 
+  - visible: boolean
+  + deleteFigure(T): void
+  + compareTo(Layer<T>): int
+  + moveToBack(T): void
+  + bringToFront(T): void
+  + figures(): List<T>
+  + toString(): String
+  + addFigure(T): void
+   layerId: int
+   visible: boolean
+}
+class LeftBar {
+  + LeftBar(int): 
+  - format: Format
+  - choiceShadow: ChoiceBox<Shadow>
+  - firstFillColorPicker: ColorPicker
+  - copyFmt: ToggleButton
+  - secondFillColorPicker: ColorPicker
+  - selectionButton: ToggleButton
+  - deleteButton: ToggleButton
+  - beveledBox: CheckBox
+  + updateFormat(Format): void
+  + createFigure(Point, Point): FormatedFigure
+  - setupLayout(): void
+  - createToggleButton(String): ToggleButton
+   selectionButton: ToggleButton
+   format: Format
+   secondFillColorPicker: ColorPicker
+   firstFillColorPicker: ColorPicker
+   beveledBox: CheckBox
+   deleteButton: ToggleButton
+   copyFmt: ToggleButton
+   choiceShadow: ChoiceBox<Shadow>
+}
+class MainFrame {
+  + MainFrame(CanvasState<FormatedFigure>): 
+}
+interface Movable << interface >> {
+  + move(double, double): void
+}
+class PaintPane {
+  + PaintPane(CanvasState<FormatedFigure>, StatusPane): 
+  - hasSelectedFigure(): boolean
+  - bindButtonToLayerActionAndRedraw(ToggleButton, Runnable): void
+  - setupRightBarEvents(): void
+  - redrawCanvas(): void
+  - bindButtonToRedraw(ButtonBase, Runnable): void
+  - setupTopBarEvents(): void
+  - applyFormatChange(Consumer<Format>): void
+  - setCurrentLayerMode(): void
+  - setupCanvasEvents(): void
+  - bindButtonToLayerAction(ToggleButton, Runnable): void
+  - setupLeftBarEvents(): void
+   currentLayerMode: boolean
+}
+class Point {
+  + Point(double, double): 
+  - x: double
+  - y: double
+  + toString(): String
+  + move(double, double): void
+   x: double
+   y: double
+}
+class Rectangle {
+  + Rectangle(Point, Point): 
+  - topLeft: Point
+  - bottomRight: Point
+  + move(double, double): void
+  + flipH(): void
+  + flipV(): void
+  + toString(): String
+  + contains(Point): boolean
+  + rotate(): void
+   topLeft: Point
+   bottomRight: Point
+}
+class RightBar {
+  + RightBar(int): 
+  ~ rotationButton: ToggleButton
+  ~ flipVButton: ToggleButton
+  ~ divideButton: ToggleButton
+  ~ duplicateButton: ToggleButton
+  ~ flipHButton: ToggleButton
+   duplicateButton: ToggleButton
+   flipVButton: ToggleButton
+   divideButton: ToggleButton
+   rotationButton: ToggleButton
+   flipHButton: ToggleButton
+}
+enum Shadow << enumeration >> {
+  - Shadow(String, int, boolean): 
+  + valueOf(String): Shadow
+  + drawShadow(GraphicsContext, DrawableFigure, Color): void
+  + toString(): String
+  + values(): Shadow[]
+}
+class Square {
+  + Square(Point, double): 
+  + toString(): String
+   size: double
+}
+class StatusPane {
+  + StatusPane(): 
+  + updateStatus(String): void
+}
+class TopBar {
+  + TopBar(int): 
+  - layers: ObservableList<Layer<FormatedFigure>>
+  - hideButton: RadioButton
+  - addLayerButton: ToggleButton
+  - showButton: RadioButton
+  - deleteLayerButton: ToggleButton
+  - bringToFrontButton: ToggleButton
+  - moveToBackButton: ToggleButton
+  - layerOptions: ChoiceBox<Layer<FormatedFigure>>
+   bringToFrontButton: ToggleButton
+   addLayerButton: ToggleButton
+   layerOptions: ChoiceBox<Layer<FormatedFigure>>
+   showButton: RadioButton
+   deleteLayerButton: ToggleButton
+   hideButton: RadioButton
+   moveToBackButton: ToggleButton
+   layers: ObservableList<Layer<FormatedFigure>>
+}
+
+CanvasState                 -[#595959,dashed]->  Figure                     
+Circle                      -[#000082,plain]-^  Ellipse                    
+DrawableCircle              -[#000082,plain]-^  Circle                     
+DrawableCircle              -[#008200,dashed]-^  DrawableEllipseInterface   
+DrawableEllipse             -[#008200,dashed]-^  DrawableEllipseInterface   
+DrawableEllipse             -[#000082,plain]-^  Ellipse                    
+DrawableEllipseInterface    -[#008200,plain]-^  DrawableFigure             
+DrawableFigure              -[#008200,plain]-^  Figure                     
+DrawableRectangle           -[#008200,dashed]-^  DrawableRectangleInterface 
+DrawableRectangle           -[#000082,plain]-^  Rectangle                  
+DrawableRectangleInterface  -[#008200,plain]-^  DrawableFigure             
+DrawableSquare              -[#008200,dashed]-^  DrawableRectangleInterface 
+DrawableSquare              -[#000082,plain]-^  Square                     
+Ellipse                     -[#008200,dashed]-^  Figure                     
+Figure                      -[#008200,plain]-^  Movable                    
+FormatedFigure              -[#008200,dashed]-^  Figure                     
+Point                       -[#008200,dashed]-^  Movable                    
+Rectangle                   -[#008200,dashed]-^  Figure                     
+Square                      -[#000082,plain]-^  Rectangle                  
+@enduml
