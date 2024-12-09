@@ -20,6 +20,8 @@ public class PaintPane extends BorderPane {
 	private static final int VBOX_SPACING = 10;
 	private static final int HBOX_SPACING = 10;
 
+	private static final String NOT_SELECTED_FIGURE = "There's no figure selected";
+
 	private final LeftBar leftBar;
     private final RightBar rightBar;
 	private final TopBar topBar;
@@ -27,6 +29,7 @@ public class PaintPane extends BorderPane {
 	private final GraphicsContext gc;
 
 	private final CanvasState<FormatedFigure> canvasState;
+	private final StatusPane statusPane;
 	private FormatedFigure selectedFigure;
 	private Point startPoint;
 	private Format copiedFormat;
@@ -38,9 +41,10 @@ public class PaintPane extends BorderPane {
 		this.topBar = new TopBar(HBOX_SPACING);
 		this.canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
 		this.gc = canvas.getGraphicsContext2D();
+		this.statusPane = statusPane;
 
 		gc.setLineWidth(LINE_WIDTH);
-		setupCanvasEvents(statusPane);
+		setupCanvasEvents();
 		setupTopBarEvents();
 		setupLeftBarEvents();
         setupRightBarEvents();
@@ -52,7 +56,7 @@ public class PaintPane extends BorderPane {
 		setCenter(canvas);
 	}
 
-	private void setupCanvasEvents(StatusPane statusPane) {
+	private void setupCanvasEvents() {
 		canvas.setOnMousePressed(event -> startPoint = new Point(event.getX(), event.getY()));
 
 		canvas.setOnMouseReleased(event -> {
@@ -119,7 +123,7 @@ public class PaintPane extends BorderPane {
 	private void setupLeftBarEvents() {
 		leftBar.getDeleteButton().setOnAction(event -> {
 			leftBar.getDeleteButton().setSelected(false);
-			if (selectedFigure == null)	return;
+			if (!hasSelectedFigure())	return;
 			canvasState.deleteFigure(selectedFigure, canvasState.getCurrentLayer().getLayerId());
 			selectedFigure = null;
 			redrawCanvas();
@@ -156,36 +160,36 @@ public class PaintPane extends BorderPane {
     private void setupRightBarEvents() {
         rightBar.getRotationButton().setOnAction(event -> {
 			rightBar.getRotationButton().setSelected(false);
-			if (selectedFigure != null) selectedFigure.rotate();
+			if (hasSelectedFigure()) selectedFigure.rotate();
 			redrawCanvas();
         });
 
         rightBar.getFlipHButton().setOnAction(event -> {
 			rightBar.getFlipHButton().setSelected(false);
-			if (selectedFigure != null) selectedFigure.flipH();
+			if (hasSelectedFigure()) selectedFigure.flipH();
 			redrawCanvas();
         });
 
     	rightBar.getFlipVButton().setOnAction(event -> {
 			rightBar.getFlipVButton().setSelected(false);
-			if (selectedFigure != null) selectedFigure.flipV();
+			if (hasSelectedFigure()) selectedFigure.flipV();
 			redrawCanvas();
         });
 
         rightBar.getDuplicateButton().setOnAction(event -> {
 			rightBar.getDuplicateButton().setSelected(false);
-			if (selectedFigure != null) canvasState.addFigure(selectedFigure.duplicate());
+			if (hasSelectedFigure()) canvasState.addFigure(selectedFigure.duplicate());
 			selectedFigure = null;
 			redrawCanvas();
         });
 
         rightBar.getDivideButton().setOnAction(event -> {
 			rightBar.getDivideButton().setSelected(false);
-			if (selectedFigure == null)	return;
+			if (!hasSelectedFigure())	return;
 			ArrayList<FormatedFigure> divided = selectedFigure.divide();
 			canvasState.addFigure(divided.get(0));
 			canvasState.addFigure(divided.get(1));
-			canvasState.deleteFigure(selectedFigure, canvasState.getCurrentLayer().getLayerId());
+			canvasState.deleteFigure(selectedFigure);
 			selectedFigure = null;
 			redrawCanvas();
         });
@@ -223,7 +227,7 @@ public class PaintPane extends BorderPane {
 
 	private void applyFormatChange(Consumer<Format> formatUpdater) {
 		formatUpdater.accept(leftBar.getFormat());
-		if (selectedFigure != null)	selectedFigure.setFormat(leftBar.getFormat());
+		if (hasSelectedFigure())	selectedFigure.setFormat(leftBar.getFormat());
 		redrawCanvas();
 	}
 
@@ -257,5 +261,11 @@ public class PaintPane extends BorderPane {
 
 	private void bindButtonToLayerActionAndRedraw(ToggleButton button, Runnable action) {
 		bindButtonToLayerAction(button, () -> { action.run(); redrawCanvas(); });
+	}
+
+	private boolean hasSelectedFigure() {
+		if (selectedFigure != null)	return true;
+		statusPane.updateStatus(NOT_SELECTED_FIGURE);
+		return false;
 	}
 }

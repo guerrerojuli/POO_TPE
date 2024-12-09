@@ -75,6 +75,10 @@ public class CanvasState<T extends Figure> extends ArrayList<Layer<T>> {
         }
     }
 
+    public void deleteFigure(T figure) {
+        this.forEach(layer -> layer.deleteFigure(figure));
+    }
+
     public Iterable<T> figures() {
         return this
                 .stream()
